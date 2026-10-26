@@ -1,0 +1,68 @@
+@import "tailwindcss";
+:root {
+  color-scheme: dark;
+
+  /* Fondos */
+  --bg-deep: #141414;
+  --bg-panel: #1f1f1f;
+  --bg-content: #292929;
+  --bg-hover: #333333;
+
+  /* Bordes */
+  --border: #3d3d3d;
+
+  /* Texto */
+  --text: #ffffff;
+  --text-muted: #d6d6d6;
+  --text-subtle: #9e9e9e;
+
+  /* Azules */
+  --blue-dark: #115ea3;
+  --blue: #0f6cbd;
+  --blue-light: #479ef5;
+}
+
+/* ------------------------------------------------------------------
+   Puente entre la paleta de arriba y Tailwind.
+   No define colores nuevos: solo expone las variables de :root como
+   utilidades (bg-panel, text-ink-subtle, border-line, bg-blue, etc.).
+   ------------------------------------------------------------------ */
+@theme inline {
+  --color-deep: var(--bg-deep);
+  --color-panel: var(--bg-panel);
+  --color-content: var(--bg-content);
+  --color-hover: var(--bg-hover);
+  --color-line: var(--border);
+
+  --color-ink: var(--text);
+  --color-ink-muted: var(--text-muted);
+  --color-ink-subtle: var(--text-subtle);
+
+  --color-blue: var(--blue);
+  --color-blue-dark: var(--blue-dark);
+  --color-blue-light: var(--blue-light);
+}
+
+@theme {
+  --font-sans:
+    "IBM Plex Sans", ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+@layer base {
+  html {
+    background-color: var(--bg-deep);
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--bg-deep);
+    color: var(--text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--blue-light);
+    outline-offset: 2px;
+  }
+}
