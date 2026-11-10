@@ -35,7 +35,8 @@ export default function Categoria() {
 
     obtenerUnoPorId(id)
       .then((res) => {
-        if (vigente) setEstado({ id, intento, cat: res.datos ?? null, error: null });
+        if (vigente)
+          setEstado({ id, intento, cat: res.datos ?? null, error: null });
       })
       .catch((error) => {
         if (!vigente) return;
@@ -56,7 +57,8 @@ export default function Categoria() {
   // Mientras la respuesta guardada no corresponda a este id, se está cargando.
   const cargando = estado.id !== id || estado.intento !== intento;
   const { cat, error } = estado;
-  const noEncontrada = !cargando && (error === "no-encontrada" || (!error && !cat));
+  const noEncontrada =
+    !cargando && (error === "no-encontrada" || (!error && !cat));
 
   return (
     <article>
