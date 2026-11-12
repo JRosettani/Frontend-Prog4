@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -133,6 +134,13 @@ export default function Login() {
             </Aviso>
           </div>
         )}
+
+        <p className="mt-4 text-center text-sm text-ink-muted">
+          ¿No tienes cuenta?{" "}
+          <Link href="/registro" className="font-semibold text-ink underline">
+            Regístrate
+          </Link>
+        </p>
       </div>
     </div>
   );
