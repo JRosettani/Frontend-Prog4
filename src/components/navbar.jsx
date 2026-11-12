@@ -8,6 +8,7 @@ const enlaces = [
   { href: "/categorias", texto: "Categorías" },
   { href: "/marcas", texto: "Marcas" },
   { href: "/talles", texto: "Talles" },
+  { href: "/productos", texto: "Productos" },
 ];
 
 function estaActivo(href, ubicacion) {

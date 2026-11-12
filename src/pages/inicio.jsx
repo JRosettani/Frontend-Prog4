@@ -19,6 +19,11 @@ const secciones = [
     titulo: "Talles",
     texto: "Define los talles disponibles.",
   },
+  {
+    href: "/productos",
+    titulo: "Productos",
+    texto: "Crea y administra los productos del catálogo.",
+  },
 ];
 
 export default function Inicio() {
@@ -33,11 +38,11 @@ export default function Inicio() {
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-muted">
           Administra tu catálogo: crea, consulta, edita y elimina categorías,
-          marcas y talles.
+          marcas, talles y productos.
         </p>
       </section>
 
-      <ul className="mt-10 grid gap-4 sm:grid-cols-3">
+      <ul className="mt-10 grid gap-4 sm:grid-cols-4">
         {secciones.map(({ href, titulo, texto }) => (
           <li key={href}>
             <Link
