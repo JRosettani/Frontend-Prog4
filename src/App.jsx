@@ -7,6 +7,8 @@ import Marcas from "./pages/marcas";
 import Marca from "./pages/marca";
 import Talles from "./pages/talles";
 import Talle from "./pages/talle";
+import Productos from "./pages/productos";
+import Producto from "./pages/productos";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
 import { useAuthStore } from "./stores/auth";
@@ -51,7 +53,12 @@ function App() {
               <Route path="/talles/:id">
                 <Talle />
               </Route>
-              {/* Con sesión iniciada, el login no tiene sentido */}
+              <Route path="/productos">
+                <Productos />
+              </Route>
+              <Route path="/productos/:id">
+                <Producto />
+              </Route>
               <Route path="/login">
                 <Redirect to="/" replace />
               </Route>
@@ -60,7 +67,6 @@ function App() {
               </Route>
             </Switch>
           ) : (
-            // Sin sesión, cualquier ruta lleva al login
             <Switch>
               <Route path="/login">
                 <Login />
