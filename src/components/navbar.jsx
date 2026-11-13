@@ -8,6 +8,7 @@ const enlaces = [
   { href: "/marcas", texto: "Marcas" },
   { href: "/talles", texto: "Talles" },
   { href: "/productos", texto: "Productos" },
+  { href: "/pedidos", texto: "Pedidos" },
 ];
 
 function estaActivo(href, ubicacion) {
@@ -29,12 +30,14 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 rounded-lg px-1 py-1 font-semibold text-ink transition-colors hover:bg-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex items-center gap-2.5 px-1 py-1 font-semibold text-ink transition-colors hover:opacity-70"
         >
-          <span className="grid size-7 place-items-center rounded-md bg-accent text-on-accent shadow-sm">
-            <IconoEtiqueta className="size-4" />
-          </span>
-          <span className="hidden sm:inline">Catálogo</span>
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKvFcZ8s1LJ1PECOcJYS1IkqVkwalCRAJUgpc6AA75Zw&s"
+            alt="Logo"
+            className="size-7 object-contain dark:invert"
+          />
+          <span className="hidden tracking-tight sm:inline">Catálogo</span>
         </Link>
 
         {isAuthenticated && (
@@ -43,7 +46,7 @@ export default function Navbar() {
 
         {/* Links de navegación */}
         {isAuthenticated && (
-          <ul className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
+          <ul className="flex items-center gap-0 overflow-x-auto scrollbar-none">
             {enlaces.map(({ href, texto }) => {
               const activo = estaActivo(href, ubicacion);
               return (
@@ -52,20 +55,21 @@ export default function Navbar() {
                     href={href}
                     aria-current={activo ? "page" : undefined}
                     className={`
-                      relative block rounded-lg px-3 py-1.5 text-sm font-medium
-                      transition-all duration-150
-                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent
-                      ${activo
-                        ? "bg-accent text-on-accent shadow-sm"
-                        : "text-ink-muted hover:bg-hover hover:text-ink active:scale-95"
-                      }
+                      group relative block px-3 py-1.5 text-sm font-medium
+                      transition-colors duration-150
+                      ${activo ? "text-ink" : "text-ink-subtle hover:text-ink"}
                     `}
                   >
                     {texto}
-                    {/* Underline indicator on hover (solo inactivos) */}
-                    {!activo && (
-                      <span className="absolute inset-x-3 bottom-0.5 h-px scale-x-0 rounded-full bg-accent/60 transition-transform duration-150 group-hover:scale-x-100" />
-                    )}
+                    {/* Línea inferior animada */}
+                    <span
+                      className={`
+                      absolute bottom-0 left-0 h-px w-full
+                      origin-left transition-transform duration-200
+                      bg-ink
+                      ${activo ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}
+                    `}
+                    />
                   </Link>
                 </li>
               );
@@ -75,11 +79,13 @@ export default function Navbar() {
 
         {/* Usuario + logout */}
         {isAuthenticated && (
-          <div className="ml-auto flex shrink-0 items-center gap-2">
+          <div className="ml-auto flex shrink-0 items-center gap-3">
             {/* Chip del usuario */}
-            <span className="hidden items-center gap-2 rounded-full border border-line bg-content px-3 py-1 sm:flex">
-              <span className="size-2 rounded-full bg-green-500" aria-hidden="true" />
-              <span className="text-sm text-ink-muted">{usuario?.nombre}</span>
+            <span className="hidden items-center gap-2 border border-line px-3 py-1 sm:flex">
+              <span className="size-1.5 bg-green-500" aria-hidden="true" />
+              <span className="text-xs tracking-wide text-ink-muted uppercase">
+                {usuario?.nombre}
+              </span>
             </span>
 
             {/* Botón salir */}
@@ -87,17 +93,25 @@ export default function Navbar() {
               type="button"
               onClick={logout}
               className="
-                flex items-center gap-1.5 rounded-lg border border-line
-                bg-content px-3 py-1.5 text-sm font-medium text-ink-muted
-                shadow-sm transition-all duration-150
-                hover:border-red-400/60 hover:bg-red-50 hover:text-red-600
+                flex items-center gap-1.5 border border-line
+                px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-ink-muted
+                transition-all duration-150
+                hover:border-ink hover:text-ink
                 active:scale-95
-                dark:hover:bg-red-950/40 dark:hover:text-red-400
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400
               "
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="size-3.5" aria-hidden="true">
-                <path fillRule="evenodd" d="M2 4.75A2.75 2.75 0 0 1 4.75 2h3a2.75 2.75 0 0 1 2.75 2.75v.5a.75.75 0 0 1-1.5 0v-.5c0-.69-.56-1.25-1.25-1.25h-3c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h3c.69 0 1.25-.56 1.25-1.25v-.5a.75.75 0 0 1 1.5 0v.5A2.75 2.75 0 0 1 7.75 14h-3A2.75 2.75 0 0 1 2 11.25v-6.5Zm9.47.47a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 1 1-1.06-1.06l.97-.97H6.75a.75.75 0 0 1 0-1.5h5.69l-.97-.97a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="size-3.5"
+                aria-hidden="true"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M2 4.75A2.75 2.75 0 0 1 4.75 2h3a2.75 2.75 0 0 1 2.75 2.75v.5a.75.75 0 0 1-1.5 0v-.5c0-.69-.56-1.25-1.25-1.25h-3c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h3c.69 0 1.25-.56 1.25-1.25v-.5a.75.75 0 0 1 1.5 0v.5A2.75 2.75 0 0 1 7.75 14h-3A2.75 2.75 0 0 1 2 11.25v-6.5Zm9.47.47a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 1 1-1.06-1.06l.97-.97H6.75a.75.75 0 0 1 0-1.5h5.69l-.97-.97a.75.75 0 0 1 0-1.06Z"
+                  clipRule="evenodd"
+                />
               </svg>
               Salir
             </button>

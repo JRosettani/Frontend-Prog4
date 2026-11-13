@@ -105,7 +105,7 @@ export default function Producto() {
     register,
     reset,
     control,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(productoSchema),
     defaultValues: {
@@ -131,7 +131,6 @@ export default function Producto() {
       imagenUrl: producto.imagenUrl ?? "",
       categoriaId: producto.categoriaId ?? "",
       marcaId: producto.marcaId ?? "",
-      // Si el producto trae talles los mapea, si no pone uno vacío
       talles: producto.talles?.length
         ? producto.talles.map((t) => ({
             talleId: t.talleId ?? t.id,
@@ -148,7 +147,7 @@ export default function Producto() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["productos"] });
       setExito(data?.mensaje ?? "Producto actualizado.");
-      reset(undefined, { keepValues: true }); // limpia isDirty sin cambiar valores
+      reset(undefined, { keepValues: true });
     },
   });
 
@@ -183,9 +182,10 @@ export default function Producto() {
       <div className="space-y-4">
         <Link
           href="/productos"
-          className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink"
+          className="group inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted transition-colors hover:text-ink"
         >
-          <IconoChevron className="size-4 rotate-180" /> Volver a productos
+          <IconoChevron className="size-4 rotate-180 transition-transform duration-200 group-hover:-translate-x-1" />{" "}
+          Volver a productos
         </Link>
         <Aviso
           tipo="error"
@@ -194,7 +194,7 @@ export default function Producto() {
             <button
               type="button"
               onClick={() => refetch()}
-              className={botonSecundario}
+              className={`${botonSecundario} transition-all duration-200 hover:scale-[1.02] active:scale-95`}
             >
               Reintentar
             </button>
@@ -212,24 +212,28 @@ export default function Producto() {
       <header className="mb-8">
         <Link
           href="/productos"
-          className="mb-3 inline-flex items-center gap-1.5 text-sm text-ink-muted transition-colors hover:text-ink"
+          className="group mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-ink-muted transition-colors hover:text-ink"
         >
-          <IconoChevron className="size-4 rotate-180" /> Volver a productos
+          <IconoChevron className="size-4 rotate-180 transition-transform duration-200 group-hover:-translate-x-1" />{" "}
+          Volver a productos
         </Link>
-        <div className="flex flex-col items-center gap-4 text-center">
-          <img
-            src={producto.imagenUrl}
-            alt={producto.nombre}
-            onError={(e) => {
-              e.target.src = "https://placehold.co/200x200?text=?";
-            }}
-            className="size-48 rounded-xl object-cover bg-content shadow-md"
-          />
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight text-ink">
+        <div className="relative flex flex-col items-center gap-4 text-center overflow-hidden rounded-2xl bg-gradient-to-b from-content/40 to-transparent p-6 backdrop-blur-sm border border-line/40 shadow-sm transition-all duration-300 hover:border-line">
+          <div className="relative group/img">
+            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-primary/30 to-accent/30 opacity-0 blur-md transition-opacity duration-300 group-hover/img:opacity-100" />
+            <img
+              src={producto.imagenUrl}
+              alt={producto.nombre}
+              onError={(e) => {
+                e.target.src = "https://placehold.co/200x200?text=?";
+              }}
+              className="relative size-48 rounded-xl object-cover bg-content shadow-md transition-transform duration-300 group-hover/img:scale-[1.02]"
+            />
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight text-ink bg-gradient-to-r from-ink to-ink/80 bg-clip-text">
               {producto.nombre}
             </h1>
-            <p className="mt-1 text-ink-muted">
+            <p className="inline-block rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
               ${producto.precio?.toLocaleString("es-AR")}
             </p>
           </div>
@@ -237,25 +241,31 @@ export default function Producto() {
       </header>
 
       {exito && (
-        <div className="mb-6">
+        <div className="mb-6 animate-fadeIn">
           <Aviso tipo="exito">{exito}</Aviso>
         </div>
       )}
 
       {/* Formulario de edición */}
-      <div className={`${panel} p-5`}>
-        <h2 className="mb-5 text-lg font-semibold text-ink">Editar producto</h2>
+      <div
+        className={`${panel} relative overflow-hidden p-6 shadow-xl backdrop-blur-md transition-all duration-300 hover:shadow-2xl border border-line/80`}
+      >
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary/50" />
+        <h2 className="mb-6 text-xl font-bold tracking-tight text-ink flex items-center gap-2">
+          <span className="inline-block size-2 rounded-full bg-primary animate-pulse" />
+          Editar producto
+        </h2>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          className="space-y-4"
+          className="space-y-5"
         >
           {/* Nombre */}
-          <div>
+          <div className="group/field">
             <label
               htmlFor="nombre"
-              className="mb-1.5 block text-sm font-medium text-ink-muted"
+              className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
             >
               Nombre
             </label>
@@ -264,11 +274,11 @@ export default function Producto() {
               id="nombre"
               autoComplete="off"
               aria-invalid={errors.nombre ? "true" : "false"}
-              className={campo}
+              className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
               {...register("nombre")}
             />
             {errors.nombre && (
-              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                 <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                 {errors.nombre.message}
               </p>
@@ -276,10 +286,10 @@ export default function Producto() {
           </div>
 
           {/* Descripción */}
-          <div>
+          <div className="group/field">
             <label
               htmlFor="descripcion"
-              className="mb-1.5 block text-sm font-medium text-ink-muted"
+              className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
             >
               Descripción
             </label>
@@ -287,11 +297,11 @@ export default function Producto() {
               id="descripcion"
               rows={3}
               aria-invalid={errors.descripcion ? "true" : "false"}
-              className={`${campo} resize-none`}
+              className={`${campo} resize-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
               {...register("descripcion")}
             />
             {errors.descripcion && (
-              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                 <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                 {errors.descripcion.message}
               </p>
@@ -299,10 +309,10 @@ export default function Producto() {
           </div>
 
           {/* Precio */}
-          <div>
+          <div className="group/field">
             <label
               htmlFor="precio"
-              className="mb-1.5 block text-sm font-medium text-ink-muted"
+              className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
             >
               Precio
             </label>
@@ -312,11 +322,11 @@ export default function Producto() {
               min="0.01"
               step="0.01"
               aria-invalid={errors.precio ? "true" : "false"}
-              className={campo}
+              className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
               {...register("precio")}
             />
             {errors.precio && (
-              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                 <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                 {errors.precio.message}
               </p>
@@ -324,10 +334,10 @@ export default function Producto() {
           </div>
 
           {/* Imagen URL */}
-          <div>
+          <div className="group/field">
             <label
               htmlFor="imagenUrl"
-              className="mb-1.5 block text-sm font-medium text-ink-muted"
+              className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
             >
               URL de imagen
             </label>
@@ -336,11 +346,11 @@ export default function Producto() {
               id="imagenUrl"
               autoComplete="off"
               aria-invalid={errors.imagenUrl ? "true" : "false"}
-              className={campo}
+              className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
               {...register("imagenUrl")}
             />
             {errors.imagenUrl && (
-              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                 <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                 {errors.imagenUrl.message}
               </p>
@@ -349,17 +359,17 @@ export default function Producto() {
 
           {/* Categoría + Marca en fila */}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="categoriaId"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Categoría
               </label>
               <select
                 id="categoriaId"
                 aria-invalid={errors.categoriaId ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("categoriaId")}
               >
                 <option value="">Seleccioná una categoría</option>
@@ -370,24 +380,24 @@ export default function Producto() {
                 ))}
               </select>
               {errors.categoriaId && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.categoriaId.message}
                 </p>
               )}
             </div>
 
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="marcaId"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Marca
               </label>
               <select
                 id="marcaId"
                 aria-invalid={errors.marcaId ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("marcaId")}
               >
                 <option value="">Seleccioná una marca</option>
@@ -398,7 +408,7 @@ export default function Producto() {
                 ))}
               </select>
               {errors.marcaId && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.marcaId.message}
                 </p>
@@ -407,16 +417,22 @@ export default function Producto() {
           </div>
 
           {/* Talles */}
-          <div>
-            <p className="mb-2 text-sm font-medium text-ink-muted">
-              Talles y stock
+          <div className="rounded-xl border border-line/60 bg-content/20 p-4 transition-colors hover:border-line">
+            <p className="mb-3 text-sm font-semibold text-ink flex items-center justify-between">
+              <span>Talles y stock</span>
+              <span className="text-xs font-normal text-ink-muted">
+                Administrar inventario por talle
+              </span>
             </p>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {fields.map((field, index) => (
-                <div key={field.id} className="flex gap-2">
+                <div
+                  key={field.id}
+                  className="flex gap-2 items-center transition-all duration-200"
+                >
                   <select
                     aria-label={`Talle ${index + 1}`}
-                    className={`${campo} flex-1`}
+                    className={`${campo} flex-1 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                     {...register(`talles.${index}.talleId`)}
                   >
                     <option value="">Talle</option>
@@ -431,7 +447,7 @@ export default function Producto() {
                     min="0"
                     placeholder="Stock"
                     aria-label={`Stock talle ${index + 1}`}
-                    className={`${campo} w-24`}
+                    className={`${campo} w-24 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                     {...register(`talles.${index}.stock`)}
                   />
                   {fields.length > 1 && (
@@ -439,7 +455,7 @@ export default function Producto() {
                       type="button"
                       onClick={() => remove(index)}
                       aria-label="Quitar talle"
-                      className={botonIcono}
+                      className={`${botonIcono} text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all duration-200 hover:scale-105 active:scale-95`}
                     >
                       <IconoPapelera className="size-4" />
                     </button>
@@ -448,7 +464,7 @@ export default function Producto() {
               ))}
             </div>
             {errors.talles && !Array.isArray(errors.talles) && (
-              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+              <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                 <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                 {errors.talles.message}
               </p>
@@ -456,29 +472,30 @@ export default function Producto() {
             <button
               type="button"
               onClick={() => append({ talleId: "", stock: 0 })}
-              className={`${botonSecundario} mt-2 w-full`}
+              className={`${botonSecundario} mt-3 w-full border-dashed border-2 hover:border-solid hover:bg-primary/5 transition-all duration-200 active:scale-[0.99]`}
             >
               + Agregar talle
             </button>
           </div>
 
           {/* Acciones */}
-          <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
+          <div className="flex items-center justify-between gap-3 border-t border-line/80 pt-5">
             <button
               type="button"
               onClick={() => {
                 setConfirmandoBorrar(true);
                 mutationEliminar.reset();
               }}
-              className="flex items-center gap-1.5 rounded-lg border border-transparent px-3 py-1.5 text-sm font-medium text-red-500 transition-all hover:border-red-300 hover:bg-red-50 active:scale-95 dark:hover:bg-red-950/40"
+              className="group flex items-center gap-1.5 rounded-xl border border-transparent px-4 py-2 text-sm font-medium text-red-500 transition-all duration-200 hover:border-red-300 hover:bg-red-50 active:scale-95 dark:hover:bg-red-950/40 shadow-sm"
             >
-              <IconoPapelera className="size-4" /> Eliminar producto
+              <IconoPapelera className="size-4 transition-transform duration-200 group-hover:scale-110" />{" "}
+              Eliminar producto
             </button>
 
             <button
               type="submit"
               disabled={mutationActualizar.isPending}
-              className={`${botonPrimario} min-w-32`}
+              className={`${botonPrimario} min-w-32 transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 active:scale-95 disabled:opacity-50`}
             >
               {mutationActualizar.isPending ? "Guardando…" : "Guardar cambios"}
             </button>
@@ -486,7 +503,7 @@ export default function Producto() {
         </form>
 
         {mutationActualizar.isError && (
-          <div className="mt-4">
+          <div className="mt-4 animate-fadeIn">
             <Aviso tipo="error">
               {mensajeError(
                 mutationActualizar.error,
@@ -520,13 +537,13 @@ export default function Producto() {
               )}
             </Aviso>
           )}
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               data-autofocus
               onClick={() => setConfirmandoBorrar(false)}
               disabled={mutationEliminar.isPending}
-              className={botonSecundario}
+              className={`${botonSecundario} transition-all duration-200 hover:bg-content/80 active:scale-95`}
             >
               Cancelar
             </button>
@@ -534,7 +551,7 @@ export default function Producto() {
               type="button"
               onClick={() => mutationEliminar.mutate()}
               disabled={mutationEliminar.isPending}
-              className={botonPrimario}
+              className={`${botonPrimario} bg-red-600 hover:bg-red-700 text-white transition-all duration-200 hover:shadow-lg hover:shadow-red-600/25 active:scale-95`}
             >
               {mutationEliminar.isPending ? "Eliminando…" : "Sí, eliminar"}
             </button>
@@ -548,11 +565,14 @@ export default function Producto() {
 // ---- Esqueletos ----
 function EsqueletoCabecera() {
   return (
-    <div className="mb-8 flex items-start gap-4" aria-hidden="true">
-      <span className="size-16 shrink-0 rounded-lg bg-content motion-safe:animate-pulse" />
-      <div className="space-y-2 pt-1">
-        <span className="block h-7 w-48 rounded bg-content motion-safe:animate-pulse" />
-        <span className="block h-4 w-24 rounded bg-content motion-safe:animate-pulse" />
+    <div
+      className="mb-8 flex items-center gap-4 rounded-2xl bg-content/20 p-6 border border-line/40 backdrop-blur-sm"
+      aria-hidden="true"
+    >
+      <span className="size-24 shrink-0 rounded-xl bg-content motion-safe:animate-pulse shadow-inner" />
+      <div className="space-y-3 pt-1 flex-1">
+        <span className="block h-8 w-3/4 max-w-md rounded-lg bg-content motion-safe:animate-pulse shadow-inner" />
+        <span className="block h-5 w-32 rounded-lg bg-content motion-safe:animate-pulse shadow-inner" />
       </div>
     </div>
   );
@@ -561,13 +581,14 @@ function EsqueletoCabecera() {
 function EsqueletoFormulario() {
   return (
     <div
-      className="rounded-xl border border-line bg-panel p-5 space-y-4"
+      className="rounded-2xl border border-line/80 bg-panel p-6 space-y-5 shadow-lg backdrop-blur-md"
       aria-hidden="true"
     >
+      <div className="h-6 w-36 rounded bg-content motion-safe:animate-pulse mb-6" />
       {[1, 2, 3, 4].map((n) => (
-        <div key={n} className="space-y-1.5">
-          <span className="block h-3.5 w-20 rounded bg-content motion-safe:animate-pulse" />
-          <span className="block h-9 w-full rounded-lg bg-content motion-safe:animate-pulse" />
+        <div key={n} className="space-y-2">
+          <span className="block h-4 w-24 rounded bg-content motion-safe:animate-pulse" />
+          <span className="block h-11 w-full rounded-xl bg-content motion-safe:animate-pulse shadow-inner" />
         </div>
       ))}
     </div>
