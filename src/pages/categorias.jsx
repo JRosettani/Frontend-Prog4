@@ -43,8 +43,8 @@ function EsqueletoLista() {
       <span className="sr-only">Cargando categorías…</span>
       <ul aria-hidden="true" className="divide-y divide-line">
         {[0, 1, 2, 3].map((n) => (
-          <li key={n} className="flex items-center gap-4 px-4 py-3">
-            <span className="size-10 shrink-0 rounded-md bg-content motion-safe:animate-pulse" />
+          <li key={n} className="flex items-center gap-4 px-4 py-3.5">
+            <span className="size-10 shrink-0 rounded-lg bg-content motion-safe:animate-pulse" />
             <span className="flex-1 space-y-2">
               <span className="block h-3.5 w-1/3 rounded bg-content motion-safe:animate-pulse" />
               <span className="block h-3 w-16 rounded bg-content motion-safe:animate-pulse" />
@@ -56,7 +56,6 @@ function EsqueletoLista() {
   );
 }
 
-// Formulario del diálogo de edición (se monta solo mientras el diálogo está abierto).
 function FormularioEdicion({ item, guardando, onGuardar, onCancelar }) {
   const {
     handleSubmit,
@@ -83,21 +82,16 @@ function FormularioEdicion({ item, guardando, onGuardar, onCancelar }) {
           placeholder="Ej.: Remeras"
           data-autofocus
           aria-invalid={errors.nombre ? "true" : "false"}
-          aria-describedby={errors.nombre ? "nombre-edicion-error" : undefined}
           className={campo}
           {...register("nombre")}
         />
         {errors.nombre && (
-          <p
-            id="nombre-edicion-error"
-            className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink"
-          >
+          <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
             <IconoAlerta className="mt-0.5 size-4 shrink-0" />
             {errors.nombre.message}
           </p>
         )}
       </div>
-
       <div className="flex justify-end gap-3">
         <button
           type="button"
@@ -115,6 +109,20 @@ function FormularioEdicion({ item, guardando, onGuardar, onCancelar }) {
   );
 }
 
+// Colores rotativos para los avatares
+const COLORES_AVATAR = [
+  "bg-violet-500 text-white",
+  "bg-blue-500 text-white",
+  "bg-emerald-500 text-white",
+  "bg-orange-500 text-white",
+  "bg-rose-500 text-white",
+  "bg-cyan-500 text-white",
+];
+
+function colorAvatar(id) {
+  return COLORES_AVATAR[id % COLORES_AVATAR.length];
+}
+
 export default function Categorias() {
   const queryClient = useQueryClient();
 
@@ -130,7 +138,6 @@ export default function Categorias() {
   const [editando, setEditando] = useState(null);
   const [borrando, setBorrando] = useState(null);
 
-  // El aviso de éxito se retira solo; los errores quedan hasta la siguiente acción.
   useEffect(() => {
     if (!exito) return;
     const t = setTimeout(() => setExito(null), 5000);
@@ -186,9 +193,7 @@ export default function Categorias() {
   };
 
   const guardarEdicion = (datos) => {
-    // La guarda evita leer propiedades de un valor que puede ser null.
     if (!editando) return;
-    // Sin cambios no hace falta molestar al servidor.
     if (datos.nombre === editando.nombre) return cerrarEditar();
     mutationEditar.mutate({
       id: editando.id,
@@ -222,11 +227,14 @@ export default function Categorias() {
   return (
     <>
       <header className="mb-8">
+        <p className="mb-1 text-xs font-medium uppercase tracking-widest text-ink-subtle">
+          Catálogo
+        </p>
         <h1 className="text-3xl font-semibold tracking-tight text-ink">
           Categorías
         </h1>
         <p className="mt-2 max-w-xl text-ink-muted">
-          Consulta, crea, edita y elimina categorías.
+          Consulta, crea, edita y elimina categorías del catálogo.
         </p>
       </header>
 
@@ -237,7 +245,7 @@ export default function Categorias() {
       )}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        {/* Alta: arriba en móvil, a la derecha en escritorio */}
+        {/* Panel alta */}
         <aside
           aria-labelledby="titulo-nuevo"
           className={`${panel} order-1 p-5 lg:order-2 lg:sticky lg:top-24`}
@@ -267,15 +275,11 @@ export default function Categorias() {
                 autoComplete="off"
                 placeholder="Ej.: Remeras"
                 aria-invalid={errors.nombre ? "true" : "false"}
-                aria-describedby={errors.nombre ? "nombre-error" : undefined}
                 className={campo}
                 {...register("nombre")}
               />
               {errors.nombre && (
-                <p
-                  id="nombre-error"
-                  className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink"
-                >
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.nombre.message}
                 </p>
@@ -296,9 +300,21 @@ export default function Categorias() {
               <Aviso tipo="error">
                 {mensajeError(
                   mutationCrear.error,
-                  "No se pudo crear la categoría. Inténtalo de nuevo.",
+                  "No se pudo crear la categoría.",
                 )}
               </Aviso>
+            </div>
+          )}
+
+          {/* Stat */}
+          {isSuccess && total > 0 && (
+            <div className="mt-6 rounded-lg border border-line bg-hover/40 px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-widest text-ink-subtle">
+                Total registradas
+              </p>
+              <p className="mt-1 text-3xl font-bold tabular-nums text-ink">
+                {total}
+              </p>
             </div>
           )}
         </aside>
@@ -333,8 +349,7 @@ export default function Categorias() {
                     onClick={() => refetch()}
                     className={botonSecundario}
                   >
-                    <IconoReintentar className="size-4" />
-                    Reintentar
+                    <IconoReintentar className="size-4" /> Reintentar
                   </button>
                 }
               >
@@ -357,47 +372,53 @@ export default function Categorias() {
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-1 pr-2 transition-colors hover:bg-hover"
+                  className="group flex items-center gap-1 pr-2 transition-colors hover:bg-hover"
                 >
                   <Link
                     href={`/categorias/${item.id}`}
-                    className="group flex min-w-0 flex-1 items-center gap-4 px-4 py-3 focus-visible:-outline-offset-2"
+                    className="flex min-w-0 flex-1 items-center gap-4 px-4 py-3.5 focus-visible:-outline-offset-2"
                   >
+                    {/* Avatar con color rotativo */}
                     <span
                       aria-hidden="true"
-                      className="grid size-10 shrink-0 place-items-center rounded-md bg-accent text-base font-semibold text-on-accent"
+                      className={`grid size-10 shrink-0 place-items-center rounded-lg text-base font-bold shadow-sm transition-transform duration-150 group-hover:scale-105 ${colorAvatar(item.id)}`}
                     >
                       {inicial(item.nombre)}
                     </span>
+
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium text-ink">
                         {item.nombre}
                       </span>
-                      <span className="block text-sm text-ink-subtle">
+                      <span className="block text-xs text-ink-subtle">
                         ID {item.id}
                       </span>
                     </span>
-                    <IconoChevron className="size-5 shrink-0 text-ink-subtle transition-colors group-hover:text-ink" />
+
+                    <IconoChevron className="size-4 shrink-0 text-ink-subtle opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
 
-                  <button
-                    type="button"
-                    onClick={() => abrirEditar(item)}
-                    aria-label={`Editar categoría ${item.nombre}`}
-                    title="Editar"
-                    className={botonIcono}
-                  >
-                    <IconoEditar className="size-4.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => abrirBorrar(item)}
-                    aria-label={`Eliminar categoría ${item.nombre}`}
-                    title="Eliminar"
-                    className={botonIcono}
-                  >
-                    <IconoPapelera className="size-4.5" />
-                  </button>
+                  {/* Acciones — visibles siempre en mobile, al hover en desktop */}
+                  <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => abrirEditar(item)}
+                      aria-label={`Editar ${item.nombre}`}
+                      title="Editar"
+                      className={botonIcono}
+                    >
+                      <IconoEditar className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => abrirBorrar(item)}
+                      aria-label={`Eliminar ${item.nombre}`}
+                      title="Eliminar"
+                      className={`${botonIcono} hover:text-red-500`}
+                    >
+                      <IconoPapelera className="size-4" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -424,7 +445,7 @@ export default function Categorias() {
               <Aviso tipo="error">
                 {mensajeError(
                   mutationEditar.error,
-                  "No se pudo actualizar la categoría. Inténtalo de nuevo.",
+                  "No se pudo actualizar la categoría.",
                 )}
               </Aviso>
             )}
@@ -432,7 +453,7 @@ export default function Categorias() {
         )}
       </Dialogo>
 
-      {/* Diálogo: confirmar eliminación */}
+      {/* Diálogo: eliminar */}
       <Dialogo
         id="dialogo-eliminar"
         abierto={borrando != null}
@@ -442,9 +463,9 @@ export default function Categorias() {
         {borrando && (
           <div className="space-y-4">
             <p className="text-ink-muted">
-              ¿Seguro que quieres eliminar la categoría{" "}
-              <strong className="font-semibold break-words text-ink">
-                “{borrando.nombre}”
+              ¿Seguro que querés eliminar{" "}
+              <strong className="break-words font-semibold text-ink">
+                "{borrando.nombre}"
               </strong>
               ? Esta acción no se puede deshacer.
             </p>
@@ -453,7 +474,7 @@ export default function Categorias() {
               <Aviso tipo="error">
                 {mensajeError(
                   mutationEliminar.error,
-                  "No se pudo eliminar la categoría. Inténtalo de nuevo.",
+                  "No se pudo eliminar la categoría.",
                 )}
               </Aviso>
             )}

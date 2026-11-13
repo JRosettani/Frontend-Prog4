@@ -1,5 +1,4 @@
 import { Link, useLocation } from "wouter";
-import { IconoEtiqueta } from "./iconos";
 import { useAuthStore } from "../stores/auth";
 
 const enlaces = [
