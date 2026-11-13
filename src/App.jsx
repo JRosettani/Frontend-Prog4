@@ -8,7 +8,7 @@ import Marca from "./pages/marca";
 import Talles from "./pages/talles";
 import Talle from "./pages/talle";
 import Productos from "./pages/productos";
-import Producto from "./pages/productos";
+import Producto from "./pages/producto";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
 import { useAuthStore } from "./stores/auth";

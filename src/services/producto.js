@@ -19,7 +19,6 @@ export const actualizarUnoPorId = async (id, producto) => {
   const res = await base.put(`/producto/${id}`, producto);
   return res.data;
 };
-
 export const eliminarUnoPorId = async (id) => {
   const res = await base.delete(`/producto/${id}`);
   return res.data;
