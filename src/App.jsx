@@ -8,9 +8,11 @@ import Marca from "./pages/marca";
 import Talles from "./pages/talles";
 import Talle from "./pages/talle";
 import Productos from "./pages/productos";
-import Producto from "./pages/productos";
+import Producto from "./pages/producto";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
+import Pedido from "./pages/pedidos";
+import DetallePedido from "./pages/detallePedido";
 import { useAuthStore } from "./stores/auth";
 
 function App() {
@@ -58,6 +60,12 @@ function App() {
               </Route>
               <Route path="/productos/:id">
                 <Producto />
+              </Route>
+              <Route path="/pedidos">
+                <Pedido />
+              </Route>
+              <Route path="/pedidos/:id">
+                <DetallePedido />
               </Route>
               <Route path="/login">
                 <Redirect to="/" replace />

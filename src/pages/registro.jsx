@@ -5,7 +5,7 @@ import z from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { registrar } from "../services/auth";
 import Aviso from "../components/aviso";
-import { IconoAlerta, IconoEtiqueta } from "../components/iconos";
+import { IconoAlerta } from "../components/iconos";
 import { botonPrimario, campo, panel } from "../components/estilos";
 import { mensajeError } from "../lib/errores";
 
@@ -89,30 +89,47 @@ export default function Registro() {
     mutationRegistro.mutate({ nombre, apellido, email, clave, roles: [] });
 
   return (
-    <div className="mx-auto max-w-sm">
-      <div className="mb-8 text-center">
-        <span className="mx-auto grid size-10 place-items-center rounded-md bg-accent text-on-accent">
-          <IconoEtiqueta className="size-5" />
-        </span>
-        <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink">
-          Crear cuenta
-        </h1>
-        <p className="mt-2 text-ink-muted">
-          Completa tus datos para registrarte.
-        </p>
+    <div className="mx-auto max-w-sm animate-fadeIn pt-4">
+      {/* Cabecera con el logo deformado y estirado horizontalmente */}
+      <div className="mb-8 text-center space-y-3">
+        <div className="relative mx-auto inline-flex items-center justify-center">
+          {/* Pseudoelemento decorativo con deformación y estiramiento horizontal */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 rounded-2xl bg-accent/30 scale-x-150 scale-y-90 blur-[1px] transform pointer-events-none"
+          />
+          <span className="relative grid size-12 place-items-center rounded-2xl bg-accent text-on-accent shadow-lg shadow-accent/20 transition-transform duration-300 hover:scale-105 overflow-hidden">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKvFcZ8s1LJ1PECOcJYS1IkqVkwalCRAJUgpc6AA75Zw&s"
+              alt="Logo"
+              className="size-7 object-contain dark:invert transform scale-x-150 transition-transform duration-300 hover:scale-x-175"
+            />
+          </span>
+        </div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-ink">
+            Crear cuenta
+          </h1>
+          <p className="mt-1.5 text-sm text-ink-muted">
+            Completa tus datos para registrarte.
+          </p>
+        </div>
       </div>
 
-      <div className={`${panel} p-5`}>
+      {/* Tarjeta del formulario */}
+      <div
+        className={`${panel} p-6 sm:p-7 shadow-xl backdrop-blur-md border border-line/80 relative overflow-hidden`}
+      >
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
           className="space-y-4"
         >
           {campos.map(({ name, label, type, autoComplete }) => (
-            <div key={name}>
+            <div key={name} className="space-y-1.5">
               <label
                 htmlFor={name}
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="block text-xs font-semibold uppercase tracking-wider text-ink-muted"
               >
                 {label}
               </label>
@@ -122,32 +139,58 @@ export default function Registro() {
                 autoComplete={autoComplete}
                 aria-invalid={errors[name] ? "true" : "false"}
                 aria-describedby={errors[name] ? `${name}-error` : undefined}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20`}
                 {...register(name)}
               />
               {errors[name] && (
                 <p
                   id={`${name}-error`}
-                  className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink"
+                  className="flex items-center gap-1.5 text-xs font-medium text-red-500 pt-1"
                 >
-                  <IconoAlerta className="mt-0.5 size-4 shrink-0" />
+                  <IconoAlerta className="size-4 shrink-0" />
                   {errors[name].message}
                 </p>
               )}
             </div>
           ))}
 
+          {/* Botón de envío con indicador de carga */}
           <button
             type="submit"
             disabled={mutationRegistro.isPending}
-            className={`${botonPrimario} w-full`}
+            className={`${botonPrimario} w-full py-2.5 transition-all duration-200 hover:shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2`}
           >
-            {mutationRegistro.isPending ? "Creando cuenta…" : "Registrarme"}
+            {mutationRegistro.isPending ? (
+              <>
+                <svg
+                  className="size-4 animate-spin text-current"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                <span>Creando cuenta…</span>
+              </>
+            ) : (
+              <span>Registrarme</span>
+            )}
           </button>
         </form>
 
         {mutationRegistro.isError && (
-          <div className="mt-4">
+          <div className="mt-5 animate-fadeIn">
             <Aviso tipo="error">
               {mensajeError(
                 mutationRegistro.error,
@@ -157,9 +200,12 @@ export default function Registro() {
           </div>
         )}
 
-        <p className="mt-4 text-center text-sm text-ink-muted">
+        <p className="mt-6 text-center text-sm text-ink-muted border-t border-line/60 pt-4">
           ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="font-semibold text-ink underline">
+          <Link
+            href="/login"
+            className="font-semibold text-ink underline underline-offset-4 hover:text-primary transition-colors"
+          >
             Inicia sesión
           </Link>
         </p>

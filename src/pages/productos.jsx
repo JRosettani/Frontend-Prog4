@@ -13,6 +13,7 @@ import Dialogo from "../components/dialogo";
 import {
   IconoAlerta,
   IconoChevron,
+  IconoEditar,
   IconoPapelera,
   IconoReintentar,
 } from "../components/iconos";
@@ -59,15 +60,18 @@ const productoSchema = z.object({
 
 function EsqueletoLista() {
   return (
-    <div role="status" aria-live="polite">
+    <div role="status" aria-live="polite" className="p-2">
       <span className="sr-only">Cargando productos…</span>
-      <ul aria-hidden="true" className="divide-y divide-line">
+      <ul aria-hidden="true" className="space-y-3">
         {[0, 1, 2, 3].map((n) => (
-          <li key={n} className="flex items-center gap-4 px-4 py-3">
-            <span className="size-10 shrink-0 rounded-md bg-content motion-safe:animate-pulse" />
+          <li
+            key={n}
+            className="flex items-center gap-4 p-4 rounded-xl bg-content/20 border border-line/40 backdrop-blur-sm"
+          >
+            <span className="size-16 shrink-0 rounded-xl bg-content motion-safe:animate-pulse shadow-inner" />
             <span className="flex-1 space-y-2">
-              <span className="block h-3.5 w-1/3 rounded bg-content motion-safe:animate-pulse" />
-              <span className="block h-3 w-16 rounded bg-content motion-safe:animate-pulse" />
+              <span className="block h-4 w-2/5 rounded-lg bg-content motion-safe:animate-pulse" />
+              <span className="block h-3.5 w-20 rounded-lg bg-content motion-safe:animate-pulse" />
             </span>
           </li>
         ))}
@@ -136,10 +140,7 @@ export default function Productos() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "talles",
-  });
+  const { fields, append, remove } = useFieldArray({ control, name: "talles" });
 
   const mutationCrear = useMutation({
     mutationKey: ["crearProducto"],
@@ -182,27 +183,32 @@ export default function Productos() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-ink">
+        <h1 className="text-3xl font-bold tracking-tight text-ink bg-gradient-to-r from-ink to-ink/80 bg-clip-text">
           Productos
         </h1>
         <p className="mt-2 max-w-xl text-ink-muted">
-          Consulta, crea y elimina productos del catálogo.
+          Consulta, crea y elimina productos del catálogo con total fluidez.
         </p>
       </header>
 
       {exito && (
-        <div className="mb-6">
+        <div className="mb-6 animate-fadeIn">
           <Aviso tipo="exito">{exito}</Aviso>
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start">
         {/* Formulario de alta */}
         <aside
           aria-labelledby="titulo-nuevo"
-          className={`${panel} order-1 p-5 lg:order-2 lg:sticky lg:top-24`}
+          className={`${panel} order-1 p-6 lg:order-2 lg:sticky lg:top-24 shadow-xl backdrop-blur-md border border-line/80 relative overflow-hidden transition-all duration-300 hover:shadow-2xl`}
         >
-          <h2 id="titulo-nuevo" className="text-lg font-semibold text-ink">
+          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-accent to-primary/50" />
+          <h2
+            id="titulo-nuevo"
+            className="text-xl font-bold tracking-tight text-ink flex items-center gap-2"
+          >
+            <span className="inline-block size-2 rounded-full bg-primary animate-pulse" />
             Nuevo producto
           </h2>
           <p className="mt-1 text-sm text-ink-subtle">
@@ -212,13 +218,13 @@ export default function Productos() {
           <form
             onSubmit={handleSubmit(onSubmit)}
             noValidate
-            className="mt-5 space-y-4"
+            className="mt-6 space-y-5"
           >
             {/* Nombre */}
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="nombre"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Nombre
               </label>
@@ -228,11 +234,11 @@ export default function Productos() {
                 autoComplete="off"
                 placeholder="Ej.: Traje Classic Negro"
                 aria-invalid={errors.nombre ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("nombre")}
               />
               {errors.nombre && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.nombre.message}
                 </p>
@@ -240,10 +246,10 @@ export default function Productos() {
             </div>
 
             {/* Descripción */}
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="descripcion"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Descripción
               </label>
@@ -252,11 +258,11 @@ export default function Productos() {
                 rows={3}
                 placeholder="Ej.: Traje de lana italiana..."
                 aria-invalid={errors.descripcion ? "true" : "false"}
-                className={`${campo} resize-none`}
+                className={`${campo} resize-none transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("descripcion")}
               />
               {errors.descripcion && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.descripcion.message}
                 </p>
@@ -264,10 +270,10 @@ export default function Productos() {
             </div>
 
             {/* Precio */}
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="precio"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Precio
               </label>
@@ -278,11 +284,11 @@ export default function Productos() {
                 step="0.01"
                 placeholder="Ej.: 85000"
                 aria-invalid={errors.precio ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("precio")}
               />
               {errors.precio && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.precio.message}
                 </p>
@@ -290,10 +296,10 @@ export default function Productos() {
             </div>
 
             {/* Imagen URL */}
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="imagenUrl"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 URL de imagen
               </label>
@@ -303,11 +309,11 @@ export default function Productos() {
                 autoComplete="off"
                 placeholder="https://..."
                 aria-invalid={errors.imagenUrl ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("imagenUrl")}
               />
               {errors.imagenUrl && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.imagenUrl.message}
                 </p>
@@ -315,17 +321,17 @@ export default function Productos() {
             </div>
 
             {/* Categoría */}
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="categoriaId"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Categoría
               </label>
               <select
                 id="categoriaId"
                 aria-invalid={errors.categoriaId ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("categoriaId")}
               >
                 <option value="">Seleccioná una categoría</option>
@@ -336,7 +342,7 @@ export default function Productos() {
                 ))}
               </select>
               {errors.categoriaId && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.categoriaId.message}
                 </p>
@@ -344,17 +350,17 @@ export default function Productos() {
             </div>
 
             {/* Marca */}
-            <div>
+            <div className="group/field">
               <label
                 htmlFor="marcaId"
-                className="mb-1.5 block text-sm font-medium text-ink-muted"
+                className="mb-1.5 block text-sm font-semibold text-ink-muted transition-colors group-focus-within/field:text-primary"
               >
                 Marca
               </label>
               <select
                 id="marcaId"
                 aria-invalid={errors.marcaId ? "true" : "false"}
-                className={campo}
+                className={`${campo} transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                 {...register("marcaId")}
               >
                 <option value="">Seleccioná una marca</option>
@@ -365,7 +371,7 @@ export default function Productos() {
                 ))}
               </select>
               {errors.marcaId && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.marcaId.message}
                 </p>
@@ -373,16 +379,22 @@ export default function Productos() {
             </div>
 
             {/* Talles */}
-            <div>
-              <p className="mb-2 text-sm font-medium text-ink-muted">
-                Talles y stock
+            <div className="rounded-xl border border-line/60 bg-content/20 p-4 transition-colors hover:border-line">
+              <p className="mb-3 text-sm font-semibold text-ink flex items-center justify-between">
+                <span>Talles y stock</span>
+                <span className="text-xs font-normal text-ink-muted">
+                  Inventario inicial
+                </span>
               </p>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {fields.map((field, index) => (
-                  <div key={field.id} className="flex gap-2">
+                  <div
+                    key={field.id}
+                    className="flex gap-2 items-center transition-all duration-200"
+                  >
                     <select
                       aria-label={`Talle ${index + 1}`}
-                      className={`${campo} flex-1`}
+                      className={`${campo} flex-1 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                       {...register(`talles.${index}.talleId`)}
                     >
                       <option value="">Talle</option>
@@ -397,7 +409,7 @@ export default function Productos() {
                       min="0"
                       placeholder="Stock"
                       aria-label={`Stock talle ${index + 1}`}
-                      className={`${campo} w-24`}
+                      className={`${campo} w-24 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
                       {...register(`talles.${index}.stock`)}
                     />
                     {fields.length > 1 && (
@@ -405,7 +417,7 @@ export default function Productos() {
                         type="button"
                         onClick={() => remove(index)}
                         aria-label="Quitar talle"
-                        className={botonIcono}
+                        className={`${botonIcono} text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all duration-200 hover:scale-105 active:scale-95`}
                       >
                         <IconoPapelera className="size-4" />
                       </button>
@@ -414,7 +426,7 @@ export default function Productos() {
                 ))}
               </div>
               {errors.talles && !Array.isArray(errors.talles) && (
-                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-red-500 animate-shake">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.talles.message}
                 </p>
@@ -422,7 +434,7 @@ export default function Productos() {
               <button
                 type="button"
                 onClick={() => append({ talleId: "", stock: 0 })}
-                className={`${botonSecundario} mt-2 w-full`}
+                className={`${botonSecundario} mt-3 w-full border-dashed border-2 hover:border-solid hover:bg-primary/5 transition-all duration-200 active:scale-[0.99]`}
               >
                 + Agregar talle
               </button>
@@ -431,14 +443,14 @@ export default function Productos() {
             <button
               type="submit"
               disabled={mutationCrear.isPending}
-              className={`${botonPrimario} w-full`}
+              className={`${botonPrimario} w-full transition-all duration-200 hover:shadow-lg hover:shadow-primary/25 active:scale-95 disabled:opacity-50`}
             >
               {mutationCrear.isPending ? "Creando…" : "Crear producto"}
             </button>
           </form>
 
           {mutationCrear.isError && (
-            <div className="mt-4">
+            <div className="mt-4 animate-fadeIn">
               <Aviso tipo="error">
                 {mensajeError(
                   mutationCrear.error,
@@ -453,15 +465,15 @@ export default function Productos() {
         <section
           aria-labelledby="titulo-lista"
           aria-busy={isLoading}
-          className={`${panel} order-2 overflow-hidden lg:order-1`}
+          className={`${panel} order-2 overflow-hidden lg:order-1 shadow-xl backdrop-blur-md border border-line/80`}
         >
-          <div className="flex items-center justify-between border-b border-line px-4 py-3">
-            <h2 id="titulo-lista" className="font-semibold text-ink">
+          <div className="flex items-center justify-between border-b border-line/80 px-6 py-4 bg-content/10">
+            <h2 id="titulo-lista" className="font-bold text-ink text-base">
               Productos existentes
             </h2>
             {isSuccess && (
-              <span className="rounded-full border border-line bg-content px-2.5 py-0.5 text-sm text-ink-muted">
-                {total}
+              <span className="rounded-full border border-line/80 bg-content/50 px-3 py-1 text-xs font-semibold text-ink-muted shadow-sm">
+                {total} {total === 1 ? "producto" : "productos"}
               </span>
             )}
           </div>
@@ -469,7 +481,7 @@ export default function Productos() {
           {isLoading && <EsqueletoLista />}
 
           {isError && (
-            <div className="p-4">
+            <div className="p-6">
               <Aviso
                 tipo="error"
                 titulo="No se pudieron cargar los productos"
@@ -477,7 +489,7 @@ export default function Productos() {
                   <button
                     type="button"
                     onClick={() => refetch()}
-                    className={botonSecundario}
+                    className={`${botonSecundario} transition-all duration-200 hover:scale-[1.02] active:scale-95`}
                   >
                     <IconoReintentar className="size-4" /> Reintentar
                   </button>
@@ -489,49 +501,71 @@ export default function Productos() {
           )}
 
           {isSuccess && total === 0 && (
-            <div className="px-6 py-12 text-center">
-              <p className="font-medium text-ink">Aún no hay productos</p>
+            <div className="px-6 py-16 text-center">
+              <div className="mx-auto size-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-3">
+                <IconoEditar className="size-6" />
+              </div>
+              <p className="font-semibold text-ink text-lg">
+                Aún no hay productos
+              </p>
               <p className="mt-1 text-sm text-ink-subtle">
-                Crea el primero con el formulario.
+                Crea el primero utilizando el formulario lateral.
               </p>
             </div>
           )}
 
           {isSuccess && total > 0 && (
-            <ul className="divide-y divide-line">
+            <ul className="divide-y divide-line/60">
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-1 pr-2 transition-colors hover:bg-hover"
+                  className="group/item flex items-center gap-2 px-4 py-3 transition-all duration-200 hover:bg-content/30"
                 >
                   <Link
                     href={`/productos/${item.id}`}
-                    className="group flex min-w-0 flex-1 items-center gap-4 px-4 py-3 focus-visible:-outline-offset-2"
+                    className="group flex min-w-0 flex-1 items-center gap-4 py-1 focus-visible:-outline-offset-2"
                   >
-                    <img
-                      src={item.imagenUrl}
-                      alt={item.nombre}
-                      className="size-10 shrink-0 rounded-md object-cover bg-content"
-                    />
+                    <div className="relative overflow-hidden rounded-xl bg-content shadow-sm">
+                      <img
+                        src={item.imagenUrl}
+                        alt={item.nombre}
+                        onError={(e) => {
+                          e.target.src = "https://placehold.co/64x64?text=?";
+                        }}
+                        className="size-16 shrink-0 object-cover transition-transform duration-300 group-hover:scale-110"
+                      />
+                    </div>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium text-ink">
+                      <span className="block truncate font-semibold text-ink transition-colors group-hover:text-primary">
                         {item.nombre}
                       </span>
-                      <span className="block text-sm text-ink-subtle">
+                      <span className="inline-block mt-0.5 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
                         ${item.precio.toLocaleString("es-AR")}
                       </span>
                     </span>
-                    <IconoChevron className="size-5 shrink-0 text-ink-subtle transition-colors group-hover:text-ink" />
+                    <IconoChevron className="size-5 shrink-0 text-ink-subtle transition-all duration-200 group-hover:translate-x-1 group-hover:text-ink" />
                   </Link>
-                  <button
-                    type="button"
-                    onClick={() => abrirBorrar(item)}
-                    aria-label={`Eliminar producto ${item.nombre}`}
-                    title="Eliminar"
-                    className={botonIcono}
-                  >
-                    <IconoPapelera className="size-4.5" />
-                  </button>
+
+                  <div className="flex items-center gap-1 opacity-90 sm:opacity-0 sm:group-hover/item:opacity-100 transition-opacity duration-200">
+                    <Link
+                      href={`/productos/${item.id}`}
+                      aria-label={`Editar producto ${item.nombre}`}
+                      title="Editar"
+                      className={`${botonIcono} hover:bg-primary/10 hover:text-primary transition-all duration-200 hover:scale-105 active:scale-95`}
+                    >
+                      <IconoEditar className="size-4.5" />
+                    </Link>
+
+                    <button
+                      type="button"
+                      onClick={() => abrirBorrar(item)}
+                      aria-label={`Eliminar producto ${item.nombre}`}
+                      title="Eliminar"
+                      className={`${botonIcono} text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all duration-200 hover:scale-105 active:scale-95`}
+                    >
+                      <IconoPapelera className="size-4.5" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -563,13 +597,13 @@ export default function Productos() {
                 )}
               </Aviso>
             )}
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
                 data-autofocus
                 onClick={cerrarBorrar}
                 disabled={mutationEliminar.isPending}
-                className={botonSecundario}
+                className={`${botonSecundario} transition-all duration-200 hover:bg-content/80 active:scale-95`}
               >
                 Cancelar
               </button>
@@ -577,7 +611,7 @@ export default function Productos() {
                 type="button"
                 onClick={() => mutationEliminar.mutate(borrando.id)}
                 disabled={mutationEliminar.isPending}
-                className={botonPrimario}
+                className={`${botonPrimario} bg-red-600 hover:bg-red-700 text-white transition-all duration-200 hover:shadow-lg hover:shadow-red-600/25 active:scale-95`}
               >
                 {mutationEliminar.isPending ? "Eliminando…" : "Sí, eliminar"}
               </button>

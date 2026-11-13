@@ -24,7 +24,6 @@ import {
   botonPrimario,
   botonSecundario,
   campo,
-  inicial,
   panel,
 } from "../components/estilos";
 import { mensajeError } from "../lib/errores";
@@ -37,16 +36,29 @@ const talleSchema = z.object({
     .max(20, "El nombre no puede superar los 20 caracteres"),
 });
 
+const COLORES_TALLE = [
+  "bg-violet-500/10 text-violet-700 border-violet-500/20 dark:text-violet-300",
+  "bg-blue-500/10 text-blue-700 border-blue-500/20 dark:text-blue-300",
+  "bg-emerald-500/10 text-emerald-700 border-emerald-500/20 dark:text-emerald-300",
+  "bg-orange-500/10 text-orange-700 border-orange-500/20 dark:text-orange-300",
+  "bg-rose-500/10 text-rose-700 border-rose-500/20 dark:text-rose-300",
+  "bg-cyan-500/10 text-cyan-700 border-cyan-500/20 dark:text-cyan-300",
+];
+
+function colorTalle(id) {
+  return COLORES_TALLE[id % COLORES_TALLE.length];
+}
+
 function EsqueletoLista() {
   return (
     <div role="status" aria-live="polite">
       <span className="sr-only">Cargando talles…</span>
       <ul aria-hidden="true" className="divide-y divide-line">
         {[0, 1, 2, 3].map((n) => (
-          <li key={n} className="flex items-center gap-4 px-4 py-3">
-            <span className="size-10 shrink-0 rounded-md bg-content motion-safe:animate-pulse" />
+          <li key={n} className="flex items-center gap-4 px-4 py-3.5">
+            <span className="h-8 w-14 shrink-0 rounded-lg bg-content motion-safe:animate-pulse" />
             <span className="flex-1 space-y-2">
-              <span className="block h-3.5 w-1/3 rounded bg-content motion-safe:animate-pulse" />
+              <span className="block h-3.5 w-1/4 rounded bg-content motion-safe:animate-pulse" />
               <span className="block h-3 w-16 rounded bg-content motion-safe:animate-pulse" />
             </span>
           </li>
@@ -56,7 +68,6 @@ function EsqueletoLista() {
   );
 }
 
-// Formulario del diálogo de edición (se monta solo mientras el diálogo está abierto).
 function FormularioEdicion({ item, guardando, onGuardar, onCancelar }) {
   const {
     handleSubmit,
@@ -83,21 +94,16 @@ function FormularioEdicion({ item, guardando, onGuardar, onCancelar }) {
           placeholder="Ej.: M, XL, 42"
           data-autofocus
           aria-invalid={errors.nombre ? "true" : "false"}
-          aria-describedby={errors.nombre ? "nombre-edicion-error" : undefined}
           className={campo}
           {...register("nombre")}
         />
         {errors.nombre && (
-          <p
-            id="nombre-edicion-error"
-            className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink"
-          >
+          <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
             <IconoAlerta className="mt-0.5 size-4 shrink-0" />
             {errors.nombre.message}
           </p>
         )}
       </div>
-
       <div className="flex justify-end gap-3">
         <button
           type="button"
@@ -130,7 +136,6 @@ export default function Talles() {
   const [editando, setEditando] = useState(null);
   const [borrando, setBorrando] = useState(null);
 
-  // El aviso de éxito se retira solo; los errores quedan hasta la siguiente acción.
   useEffect(() => {
     if (!exito) return;
     const t = setTimeout(() => setExito(null), 5000);
@@ -186,9 +191,7 @@ export default function Talles() {
   };
 
   const guardarEdicion = (datos) => {
-    // La guarda evita leer propiedades de un valor que puede ser null.
     if (!editando) return;
-    // Sin cambios no hace falta molestar al servidor.
     if (datos.nombre === editando.nombre) return cerrarEditar();
     mutationEditar.mutate({
       id: editando.id,
@@ -222,11 +225,14 @@ export default function Talles() {
   return (
     <>
       <header className="mb-8">
+        <p className="mb-1 text-xs font-medium uppercase tracking-widest text-ink-subtle">
+          Catálogo
+        </p>
         <h1 className="text-3xl font-semibold tracking-tight text-ink">
           Talles
         </h1>
         <p className="mt-2 max-w-xl text-ink-muted">
-          Consulta, crea, edita y elimina talles.
+          Consulta, crea, edita y elimina talles del catálogo.
         </p>
       </header>
 
@@ -237,7 +243,7 @@ export default function Talles() {
       )}
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        {/* Alta: arriba en móvil, a la derecha en escritorio */}
+        {/* Panel alta */}
         <aside
           aria-labelledby="titulo-nuevo"
           className={`${panel} order-1 p-5 lg:order-2 lg:sticky lg:top-24`}
@@ -246,7 +252,7 @@ export default function Talles() {
             Nuevo talle
           </h2>
           <p className="mt-1 text-sm text-ink-subtle">
-            Ponle un nombre claro; después la verás en la lista.
+            Puede ser una letra (S, M, XL) o un número (38, 42).
           </p>
 
           <form
@@ -267,15 +273,11 @@ export default function Talles() {
                 autoComplete="off"
                 placeholder="Ej.: M, XL, 42"
                 aria-invalid={errors.nombre ? "true" : "false"}
-                aria-describedby={errors.nombre ? "nombre-error" : undefined}
                 className={campo}
                 {...register("nombre")}
               />
               {errors.nombre && (
-                <p
-                  id="nombre-error"
-                  className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink"
-                >
+                <p className="mt-2 flex items-start gap-1.5 text-sm font-medium text-ink">
                   <IconoAlerta className="mt-0.5 size-4 shrink-0" />
                   {errors.nombre.message}
                 </p>
@@ -296,9 +298,28 @@ export default function Talles() {
               <Aviso tipo="error">
                 {mensajeError(
                   mutationCrear.error,
-                  "No se pudo crear el talle. Inténtalo de nuevo.",
+                  "No se pudo crear el talle.",
                 )}
               </Aviso>
+            </div>
+          )}
+
+          {/* Vista previa de todos los talles como chips */}
+          {isSuccess && total > 0 && (
+            <div className="mt-6 rounded-lg border border-line bg-hover/40 p-4">
+              <p className="mb-3 text-xs font-medium uppercase tracking-widest text-ink-subtle">
+                {total} {total === 1 ? "talle" : "talles"} registrados
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {items.map((t) => (
+                  <span
+                    key={t.id}
+                    className={`inline-flex items-center rounded-md border px-2.5 py-1 text-xs font-semibold ${colorTalle(t.id)}`}
+                  >
+                    {t.nombre}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </aside>
@@ -326,15 +347,14 @@ export default function Talles() {
             <div className="p-4">
               <Aviso
                 tipo="error"
-                titulo="No se pudieron cargar las talles"
+                titulo="No se pudieron cargar los talles"
                 accion={
                   <button
                     type="button"
                     onClick={() => refetch()}
                     className={botonSecundario}
                   >
-                    <IconoReintentar className="size-4" />
-                    Reintentar
+                    <IconoReintentar className="size-4" /> Reintentar
                   </button>
                 }
               >
@@ -357,47 +377,52 @@ export default function Talles() {
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-1 pr-2 transition-colors hover:bg-hover"
+                  className="group flex items-center gap-1 pr-2 transition-colors hover:bg-hover"
                 >
                   <Link
                     href={`/talles/${item.id}`}
-                    className="group flex min-w-0 flex-1 items-center gap-4 px-4 py-3 focus-visible:-outline-offset-2"
+                    className="flex min-w-0 flex-1 items-center gap-4 px-4 py-3.5 focus-visible:-outline-offset-2"
                   >
+                    {/* Chip de talle en vez de avatar */}
                     <span
                       aria-hidden="true"
-                      className="grid size-10 shrink-0 place-items-center rounded-md bg-accent text-base font-semibold text-on-accent"
+                      className={`inline-flex h-8 min-w-14 shrink-0 items-center justify-center rounded-lg border px-2 text-sm font-bold tracking-wide transition-transform duration-150 group-hover:scale-105 ${colorTalle(item.id)}`}
                     >
-                      {inicial(item.nombre)}
+                      {item.nombre}
                     </span>
+
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-medium text-ink">
                         {item.nombre}
                       </span>
-                      <span className="block text-sm text-ink-subtle">
+                      <span className="block text-xs text-ink-subtle">
                         ID {item.id}
                       </span>
                     </span>
-                    <IconoChevron className="size-5 shrink-0 text-ink-subtle transition-colors group-hover:text-ink" />
+
+                    <IconoChevron className="size-4 shrink-0 text-ink-subtle opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
 
-                  <button
-                    type="button"
-                    onClick={() => abrirEditar(item)}
-                    aria-label={`Editar talle ${item.nombre}`}
-                    title="Editar"
-                    className={botonIcono}
-                  >
-                    <IconoEditar className="size-4.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => abrirBorrar(item)}
-                    aria-label={`Eliminar talle ${item.nombre}`}
-                    title="Eliminar"
-                    className={botonIcono}
-                  >
-                    <IconoPapelera className="size-4.5" />
-                  </button>
+                  <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100">
+                    <button
+                      type="button"
+                      onClick={() => abrirEditar(item)}
+                      aria-label={`Editar ${item.nombre}`}
+                      title="Editar"
+                      className={botonIcono}
+                    >
+                      <IconoEditar className="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => abrirBorrar(item)}
+                      aria-label={`Eliminar ${item.nombre}`}
+                      title="Eliminar"
+                      className={`${botonIcono} hover:text-red-500`}
+                    >
+                      <IconoPapelera className="size-4" />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -424,7 +449,7 @@ export default function Talles() {
               <Aviso tipo="error">
                 {mensajeError(
                   mutationEditar.error,
-                  "No se pudo actualizar el talle. Inténtalo de nuevo.",
+                  "No se pudo actualizar el talle.",
                 )}
               </Aviso>
             )}
@@ -432,7 +457,7 @@ export default function Talles() {
         )}
       </Dialogo>
 
-      {/* Diálogo: confirmar eliminación */}
+      {/* Diálogo: eliminar */}
       <Dialogo
         id="dialogo-eliminar"
         abierto={borrando != null}
@@ -442,22 +467,20 @@ export default function Talles() {
         {borrando && (
           <div className="space-y-4">
             <p className="text-ink-muted">
-              ¿Seguro que quieres eliminar el talle{" "}
-              <strong className="font-semibold break-words text-ink">
-                “{borrando.nombre}”
+              ¿Seguro que querés eliminar el talle{" "}
+              <strong className="break-words font-semibold text-ink">
+                "{borrando.nombre}"
               </strong>
               ? Esta acción no se puede deshacer.
             </p>
-
             {mutationEliminar.isError && (
               <Aviso tipo="error">
                 {mensajeError(
                   mutationEliminar.error,
-                  "No se pudo eliminar el talle. Inténtalo de nuevo.",
+                  "No se pudo eliminar el talle.",
                 )}
               </Aviso>
             )}
-
             <div className="flex justify-end gap-3">
               <button
                 type="button"
