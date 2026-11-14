@@ -32,7 +32,7 @@ export default function Usuarios() {
           Usuarios
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-ink-muted">
-          Consultá las cuentas registradas y editá sus datos.
+          Consultá las cuentas registradas y sus perfiles.
         </p>
         <span className="mt-8 block h-px w-16 bg-ink" />
       </section>

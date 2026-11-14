@@ -36,7 +36,7 @@ const secciones = [
   {
     href: "/usuarios",
     titulo: "Usuarios",
-    texto: "Consulta y edita las cuentas registradas.",
+    texto: "Consulta las cuentas registradas y sus perfiles.",
     numero: "06",
   },
 ];
