@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuthStore } from "../stores/auth";
+import { useCarritoStore } from "../stores/carrito";
 
 const enlaces = [
   { href: "/home", texto: "Inicio" },
@@ -18,6 +19,9 @@ export default function NavbarUsuario() {
   const [ubicacion] = useLocation();
   const { usuario, logout } = useAuthStore();
   const [menuAbierto, setMenuAbierto] = useState(false);
+  const cantidadCarrito = useCarritoStore((s) =>
+    s.items.reduce((suma, i) => suma + i.cantidad, 0),
+  );
 
   const inicial = usuario?.nombre?.[0]?.toUpperCase() ?? "U";
 
@@ -68,6 +72,33 @@ export default function NavbarUsuario() {
 
         {/* Derecha */}
         <div className="flex items-center gap-2">
+          {/* Carrito */}
+          <Link
+            href="/carrito"
+            aria-label={`Carrito, ${cantidadCarrito} ${cantidadCarrito === 1 ? "unidad" : "unidades"}`}
+            className="relative grid size-9 place-items-center border border-line text-ink-muted transition-all duration-200 hover:border-ink hover:text-ink"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="size-5"
+              aria-hidden="true"
+            >
+              <path d="M6 7h12l-1 13H7L6 7Z" />
+              <path d="M9 7a3 3 0 0 1 6 0" />
+            </svg>
+            {cantidadCarrito > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 grid min-w-4 place-items-center bg-ink px-1 text-[0.6rem] font-bold leading-4 text-on-accent">
+                {cantidadCarrito}
+              </span>
+            )}
+          </Link>
+
           {/* Avatar → perfil */}
           <Link
             href="/perfil"
