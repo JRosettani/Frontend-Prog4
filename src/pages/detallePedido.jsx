@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { obtenerUnoPorId, actualizarEstadoPedido } from "../services/pedido";
+import { obtenerTodos as obtenerEstados } from "../services/estadoPedido";
 import Aviso from "../components/aviso";
 import { IconoChevron, IconoAlerta } from "../components/iconos";
 import {
@@ -55,6 +56,12 @@ export default function DetallePedido() {
   });
 
   const pedido = data?.datos ?? data ?? null;
+
+  // Los estados vienen del backend, así que no dependen de ids fijos.
+  const { data: dataEstados } = useQuery({
+    queryKey: ["estados-pedido"],
+    queryFn: obtenerEstados,
+  });
 
   const mutationActualizarEstado = useMutation({
     mutationFn: (idEstado) => actualizarEstadoPedido(id, Number(idEstado)),
@@ -113,15 +120,18 @@ export default function DetallePedido() {
   const precioTotal = pedido.total ?? pedido.precioTotal ?? 0;
   const itemsPedido = Array.isArray(pedido.items) ? pedido.items : [];
 
-  // Ids según el seed de EstadoPedidos del backend. El backend solo manda el
-  // nombre del estado, así que el valor inicial se deduce del nombre.
-  const ID_PENDIENTE = "1";
-  const ID_CONFIRMADO = "3";
-  const estaCancelado = pedido.estadoNombre?.toLowerCase() === "cancelado";
-  const estadoServidorId =
-    pedido.estadoNombre?.toLowerCase() === "confirmado"
-      ? ID_CONFIRMADO
-      : ID_PENDIENTE;
+  // "Cancelado" no se elige acá: el backend lo exige por DELETE (lo hace el
+  // cliente desde "Mis pedidos"). El backend solo manda el nombre del estado
+  // del pedido, así que el valor inicial se busca por nombre.
+  const nombreEstado = pedido.estadoNombre?.toLowerCase();
+  const estaCancelado = nombreEstado === "cancelado";
+  const estadosElegibles = (
+    Array.isArray(dataEstados?.datos) ? dataEstados.datos : []
+  ).filter((e) => e.nombre?.toLowerCase() !== "cancelado");
+  const estadoServidorId = String(
+    estadosElegibles.find((e) => e.nombre?.toLowerCase() === nombreEstado)
+      ?.id ?? "",
+  );
   const nuevoEstado = estadoLocal ?? estadoServidorId;
 
   const handleCambiarEstado = (e) => {
@@ -131,7 +141,10 @@ export default function DetallePedido() {
     mutationActualizarEstado.mutate(nuevoEstado);
   };
 
-  const esConfirmadoVisual = nuevoEstado === ID_CONFIRMADO;
+  const esConfirmadoVisual =
+    estadosElegibles
+      .find((e) => String(e.id) === nuevoEstado)
+      ?.nombre?.toLowerCase() === "confirmado";
 
   const estadoBadgeStyles = esConfirmadoVisual
     ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
@@ -186,7 +199,7 @@ export default function DetallePedido() {
           </div>
         </div>
 
-        {/* Panel de cambio de estado (Pendiente [1] y Confirmado [3]) */}
+        {/* Panel de cambio de estado (estados cargados desde el backend) */}
         <div className="rounded-2xl border border-line/80 bg-content/20 p-5 space-y-4">
           <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
             <span className="size-2 rounded-full bg-primary animate-pulse" />
@@ -202,8 +215,11 @@ export default function DetallePedido() {
               disabled={estaCancelado}
               className={`${campo} flex-1 transition-all duration-200 focus:ring-2 focus:ring-primary/20`}
             >
-              <option value={ID_PENDIENTE}>Pendiente</option>
-              <option value={ID_CONFIRMADO}>Confirmado</option>
+              {estadosElegibles.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.nombre}
+                </option>
+              ))}
             </select>
             <button
               type="submit"
