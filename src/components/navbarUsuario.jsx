@@ -22,7 +22,7 @@ export default function NavbarUsuario() {
   const inicial = usuario?.nombre?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <header className="sticky top-0 z-10 border-b border-line bg-panel/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-10 border-b border-line bg-panel/90 backdrop-blur-md">
       <nav
         aria-label="Principal"
         className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6"
@@ -30,13 +30,12 @@ export default function NavbarUsuario() {
         {/* Logo */}
         <Link
           href="/home"
-          className="flex shrink-0 items-center gap-2 font-semibold text-ink transition-colors hover:opacity-70"
+          className="group flex shrink-0 items-center gap-2.5 font-semibold text-ink transition-opacity hover:opacity-70"
         >
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKvFcZ8s1LJ1PECOcJYS1IkqVkwalCRAJUgpc6AA75Zw&s"
-            alt="Logo"
-            className="size-7 object-contain dark:invert"
-          />
+          <span className="relative flex size-7 items-center justify-center overflow-hidden bg-ink text-on-accent text-xs font-black">
+            ℝ{/* Shimmer en hover */}
+            <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+          </span>
           <span className="hidden tracking-tight sm:inline">Catálogo</span>
         </Link>
 
@@ -69,16 +68,17 @@ export default function NavbarUsuario() {
 
         {/* Derecha */}
         <div className="flex items-center gap-2">
-          {/* Avatar → perfil (siempre visible) */}
+          {/* Avatar → perfil */}
           <Link
             href="/perfil"
             aria-label="Ver perfil"
-            className="flex items-center gap-2 border border-line px-2 py-1 text-xs text-ink-muted transition-all hover:border-primary/40 hover:text-ink"
+            className="group flex items-center gap-2 border border-line px-2 py-1 text-xs text-ink-muted transition-all duration-200 hover:border-ink hover:text-ink"
           >
-            <span className="grid size-6 shrink-0 place-items-center rounded-full bg-accent text-on-accent text-xs font-bold">
+            <span className="relative grid size-6 shrink-0 place-items-center overflow-hidden bg-ink text-on-accent text-xs font-bold">
               {inicial}
+              <span className="absolute inset-0 bg-white/0 transition-colors duration-200 group-hover:bg-white/10" />
             </span>
-            <span className="hidden max-w-24 truncate tracking-wide uppercase sm:block">
+            <span className="hidden max-w-24 truncate text-[0.65rem] tracking-[0.15em] uppercase sm:block">
               {usuario?.nombre}
             </span>
           </Link>
@@ -88,13 +88,13 @@ export default function NavbarUsuario() {
             type="button"
             onClick={logout}
             aria-label="Cerrar sesión"
-            className="hidden items-center gap-1.5 border border-line px-3 py-1.5 text-xs font-medium uppercase tracking-widest text-ink-muted transition-all hover:border-red-400/60 hover:bg-red-50 hover:text-red-600 active:scale-95 dark:hover:bg-red-950/40 dark:hover:text-red-400 sm:flex"
+            className="group hidden items-center gap-1.5 border border-line px-3 py-1.5 text-[0.65rem] font-medium uppercase tracking-widest text-ink-muted transition-all duration-200 hover:border-ink hover:text-ink active:scale-95 sm:flex"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
               fill="currentColor"
-              className="size-3.5"
+              className="size-3.5 transition-transform duration-200 group-hover:translate-x-0.5"
               aria-hidden="true"
             >
               <path
@@ -111,72 +111,66 @@ export default function NavbarUsuario() {
             type="button"
             onClick={() => setMenuAbierto(!menuAbierto)}
             aria-label="Menú"
-            className="grid size-9 place-items-center border border-line text-ink-muted transition-colors hover:text-ink sm:hidden"
+            aria-expanded={menuAbierto}
+            className="grid size-9 place-items-center border border-line text-ink-muted transition-all hover:border-ink hover:text-ink active:scale-95 sm:hidden"
           >
-            {menuAbierto ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="size-4"
-              >
-                <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                className="size-4"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M2 3.75A.75.75 0 0 1 2.75 3h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 3.75ZM2 8a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 8Zm0 4.25a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1-.75-.75Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            )}
+            <span className="relative flex size-4 flex-col items-center justify-center gap-[4px]">
+              <span
+                className={`block h-px w-4 bg-current transition-all duration-300 ${menuAbierto ? "translate-y-[5px] rotate-45" : ""}`}
+              />
+              <span
+                className={`block h-px bg-current transition-all duration-300 ${menuAbierto ? "w-0 opacity-0" : "w-3"}`}
+              />
+              <span
+                className={`block h-px w-4 bg-current transition-all duration-300 ${menuAbierto ? "-translate-y-[5px] -rotate-45" : ""}`}
+              />
+            </span>
           </button>
         </div>
       </nav>
 
       {/* Menú mobile desplegable */}
-      {menuAbierto && (
-        <div className="border-t border-line bg-panel px-4 pb-4 sm:hidden">
-          <ul className="space-y-1 pt-2">
-            {enlaces.map(({ href, texto }) => {
-              const activo = estaActivo(href, ubicacion);
-              return (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    onClick={() => setMenuAbierto(false)}
-                    className={`block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                      activo
-                        ? "bg-content text-ink"
-                        : "text-ink-muted hover:bg-hover hover:text-ink"
-                    }`}
-                  >
-                    {texto}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-          <div className="mt-3 border-t border-line pt-3">
-            <button
-              type="button"
-              onClick={() => {
-                logout();
-                setMenuAbierto(false);
-              }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950/40"
-            >
+      <div
+        className={`overflow-hidden border-t border-line bg-panel transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] sm:hidden ${
+          menuAbierto ? "max-h-80 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <ul className="space-y-0.5 px-4 pt-3">
+          {enlaces.map(({ href, texto }) => {
+            const activo = estaActivo(href, ubicacion);
+            return (
+              <li key={href}>
+                <Link
+                  href={href}
+                  onClick={() => setMenuAbierto(false)}
+                  className={`group relative flex items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors ${
+                    activo ? "text-ink" : "text-ink-muted hover:text-ink"
+                  }`}
+                >
+                  {texto}
+                  <span
+                    className={`h-px origin-left bg-ink transition-all duration-200 ${activo ? "w-4" : "w-0 group-hover:w-4"}`}
+                  />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="mx-4 mt-2 border-t border-line pb-4 pt-3">
+          <button
+            type="button"
+            onClick={() => {
+              logout();
+              setMenuAbierto(false);
+            }}
+            className="group flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:text-ink"
+          >
+            <span className="flex items-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="size-4"
+                className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
               >
                 <path
                   fillRule="evenodd"
@@ -185,10 +179,11 @@ export default function NavbarUsuario() {
                 />
               </svg>
               Cerrar sesión
-            </button>
-          </div>
+            </span>
+            <span className="h-px w-0 bg-ink transition-all duration-200 group-hover:w-4" />
+          </button>
         </div>
-      )}
+      </div>
     </header>
   );
 }
