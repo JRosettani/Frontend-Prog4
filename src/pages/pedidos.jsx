@@ -6,6 +6,7 @@ import {
   obtenerPorEmail,
 } from "../services/pedido";
 import Aviso from "../components/aviso";
+import EstadoPedido from "../components/estadoPedido";
 import { IconoReintentar, IconoChevron } from "../components/iconos";
 import {
   botonSecundario,
@@ -203,16 +204,8 @@ export default function Pedidos() {
 
               const usuarioEmail = item.usuarioEmail ?? "Sin email";
               const estadoNombre = item.estadoNombre ?? "Pendiente";
-              const estadoId = String(item.idEstado ?? item.estadoId ?? "1");
               const precioTotal = item.total ?? 0;
               const itemsPedido = Array.isArray(item.items) ? item.items : [];
-
-              const esConfirmado =
-                estadoId === "2" || estadoNombre.toLowerCase() === "confirmado";
-
-              const estadoBadgeStyles = esConfirmado
-                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
-                : "bg-amber-500/10 text-amber-600 border-amber-500/20";
 
               return (
                 <li key={item.id ?? index} className="bg-panel">
@@ -234,11 +227,7 @@ export default function Pedidos() {
                         <span className="text-xs font-medium uppercase tracking-widest text-ink-subtle">
                           #{numeroPedido} · {fechaFormateada}
                         </span>
-                        <span
-                          className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${estadoBadgeStyles}`}
-                        >
-                          {estadoNombre}
-                        </span>
+                        <EstadoPedido nombre={estadoNombre} />
                       </div>
 
                       {/* Email cliente */}

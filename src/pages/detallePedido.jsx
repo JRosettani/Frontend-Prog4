@@ -1,3 +1,4 @@
+import EstadoPedido from "../components/estadoPedido";
 import { useState, useEffect } from "react";
 import { Link, useParams } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -112,9 +113,16 @@ export default function DetallePedido() {
   const precioTotal = pedido.total ?? pedido.precioTotal ?? 0;
   const itemsPedido = Array.isArray(pedido.items) ? pedido.items : [];
 
-  // Obtenemos el ID del estado actual del servidor (por defecto 1 si no viene)
-  const estadoServidorId = String(pedido?.idEstado ?? pedido?.estadoId ?? "1");
-  const nuevoEstado = estadoLocal ?? (estadoServidorId === "2" ? "2" : "1");
+  // Ids según el seed de EstadoPedidos del backend. El backend solo manda el
+  // nombre del estado, así que el valor inicial se deduce del nombre.
+  const ID_PENDIENTE = "1";
+  const ID_CONFIRMADO = "3";
+  const estaCancelado = pedido.estadoNombre?.toLowerCase() === "cancelado";
+  const estadoServidorId =
+    pedido.estadoNombre?.toLowerCase() === "confirmado"
+      ? ID_CONFIRMADO
+      : ID_PENDIENTE;
+  const nuevoEstado = estadoLocal ?? estadoServidorId;
 
   const handleCambiarEstado = (e) => {
     e.preventDefault();
@@ -123,7 +131,7 @@ export default function DetallePedido() {
     mutationActualizarEstado.mutate(nuevoEstado);
   };
 
-  const esConfirmadoVisual = nuevoEstado === "2";
+  const esConfirmadoVisual = nuevoEstado === ID_CONFIRMADO;
 
   const estadoBadgeStyles = esConfirmadoVisual
     ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
@@ -166,15 +174,19 @@ export default function DetallePedido() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span
-              className={`rounded-full border px-3 py-1 text-xs font-semibold ${estadoBadgeStyles}`}
-            >
-              {esConfirmadoVisual ? "Confirmado" : "Pendiente"}
-            </span>
+            {estaCancelado ? (
+              <EstadoPedido nombre={pedido.estadoNombre} />
+            ) : (
+              <span
+                className={`rounded-full border px-3 py-1 text-xs font-semibold ${estadoBadgeStyles}`}
+              >
+                {esConfirmadoVisual ? "Confirmado" : "Pendiente"}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Panel de cambio de estado (Pendiente [1] y Confirmado [2]) */}
+        {/* Panel de cambio de estado (Pendiente [1] y Confirmado [3]) */}
         <div className="rounded-2xl border border-line/80 bg-content/20 p-5 space-y-4">
           <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
             <span className="size-2 rounded-full bg-primary animate-pulse" />
@@ -187,14 +199,19 @@ export default function DetallePedido() {
             <select
               value={nuevoEstado}
               onChange={(e) => setEstadoLocal(e.target.value)}
+              disabled={estaCancelado}
               className={`${campo} flex-1 transition-all duration-200 focus:ring-2 focus:ring-primary/20`}
             >
-              <option value="1">Pendiente</option>
-              <option value="2">Confirmado</option>
+              <option value={ID_PENDIENTE}>Pendiente</option>
+              <option value={ID_CONFIRMADO}>Confirmado</option>
             </select>
             <button
               type="submit"
-              disabled={mutationActualizarEstado.isPending || !nuevoEstado}
+              disabled={
+                mutationActualizarEstado.isPending ||
+                !nuevoEstado ||
+                estaCancelado
+              }
               className={`${botonPrimario} sm:w-auto transition-all duration-200 hover:shadow-lg active:scale-95 disabled:opacity-50`}
             >
               {mutationActualizarEstado.isPending
