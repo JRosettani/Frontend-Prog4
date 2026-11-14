@@ -20,3 +20,25 @@ export const obtenerPorEmail = async (email) => {
   const res = await base.get(`/Pedido/cliente/${email}`);
   return res.data;
 };
+
+// ── Usuario logueado ──────────────────────────────────────────────
+// items: [{ productoId, talleId, cantidad }]
+export const crearPedido = async (items) => {
+  const res = await base.post("/Pedido", { items });
+  return res.data;
+};
+
+export const obtenerMisPedidos = async () => {
+  const res = await base.get("/Pedido/mis-pedidos");
+  return res.data;
+};
+
+export const obtenerMiPedido = async (id) => {
+  const res = await base.get(`/Pedido/mis-pedidos/${id}`);
+  return res.data;
+};
+
+export const cancelarMiPedido = async (id) => {
+  const res = await base.delete(`/Pedido/mis-pedidos/${id}`);
+  return res.data;
+};

@@ -17,6 +17,11 @@ import DetallePedido from "./pages/detallePedido";
 // Usuario
 import NavbarUsuario from "./components/navbarUsuario";
 import HomeUsuario from "./pages/homeUsuario";
+import Catalogo from "./pages/catalogo";
+import CatalogoDetalle from "./pages/catalogoDetalle";
+import Carrito from "./pages/carrito";
+import MisPedidos from "./pages/misPedidos";
+import MisPedidoDetalle from "./pages/misPedidoDetalle";
 
 // Públicas
 import Login from "./pages/login";
@@ -121,6 +126,21 @@ function App() {
               <Switch>
                 <Route path="/home">
                   <HomeUsuario />
+                </Route>
+                <Route path="/catalogo">
+                  <Catalogo />
+                </Route>
+                <Route path="/catalogo/:id">
+                  <CatalogoDetalle />
+                </Route>
+                <Route path="/carrito">
+                  <Carrito />
+                </Route>
+                <Route path="/mis-pedidos">
+                  <MisPedidos />
+                </Route>
+                <Route path="/mis-pedidos/:id">
+                  <MisPedidoDetalle />
                 </Route>
                 <Route path="/">
                   <Redirect to="/home" replace />
