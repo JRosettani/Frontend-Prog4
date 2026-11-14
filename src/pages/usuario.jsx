@@ -1,14 +1,13 @@
 import { Link, useParams } from "wouter";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { obtenerUnoPorId, actualizarUnoPorId } from "../services/usuario";
-import FormUsuario, { sincronizarSesion } from "../components/formUsuario";
+import { useQuery } from "@tanstack/react-query";
+import { obtenerUnoPorId } from "../services/usuario";
 import Aviso from "../components/aviso";
 import { IconoChevron } from "../components/iconos";
+import { panel, inicial } from "../components/estilos";
 
-// Detalle y edición de un usuario (solo admin).
+// Perfil de un usuario, solo lectura (vista del admin).
 export default function Usuario() {
   const { id } = useParams();
-  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["usuarios", id],
@@ -16,15 +15,17 @@ export default function Usuario() {
   });
   const usuario = data?.datos ?? null;
 
-  const mutacion = useMutation({
-    mutationFn: (datos) => actualizarUnoPorId(id, datos),
-    onSuccess: (res) => {
-      // Si el admin se edita a sí mismo, se refresca también su sesión.
-      sincronizarSesion(res?.datos);
-      queryClient.invalidateQueries({ queryKey: ["usuarios"] });
-      queryClient.invalidateQueries({ queryKey: ["perfil"] });
-    },
-  });
+  const datos = usuario
+    ? [
+        { etiqueta: "Nombre", valor: usuario.nombre },
+        { etiqueta: "Apellido", valor: usuario.apellido },
+        { etiqueta: "Correo electrónico", valor: usuario.email },
+        {
+          etiqueta: "Rol",
+          valor: (usuario.roles ?? []).map((r) => r.nombre).join(", ") || "—",
+        },
+      ]
+    : [];
 
   return (
     <>
@@ -49,20 +50,35 @@ export default function Usuario() {
       )}
 
       {usuario && (
-        <>
-          <header className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight text-ink">
-              {usuario.nombre} {usuario.apellido}
-            </h1>
-            <p className="mt-1 text-sm text-ink-muted">
-              Rol:{" "}
-              <span className="font-semibold text-ink">
-                {(usuario.roles ?? []).map((r) => r.nombre).join(", ") || "—"}
-              </span>
-            </p>
-          </header>
-          <FormUsuario usuario={usuario} mutacion={mutacion} />
-        </>
+        <div className={`${panel} max-w-xl overflow-hidden`}>
+          <div className="flex items-center gap-4 border-b border-line bg-content/10 px-6 py-5">
+            <span className="grid size-12 shrink-0 place-items-center bg-ink text-lg font-bold text-on-accent">
+              {inicial(usuario.nombre)}
+            </span>
+            <div className="min-w-0">
+              <h1 className="truncate text-2xl font-bold tracking-tight text-ink">
+                {usuario.nombre} {usuario.apellido}
+              </h1>
+              <p className="text-xs uppercase tracking-widest text-ink-subtle">
+                Perfil · solo lectura
+              </p>
+            </div>
+          </div>
+
+          <dl className="divide-y divide-line">
+            {datos.map(({ etiqueta, valor }) => (
+              <div
+                key={etiqueta}
+                className="flex flex-col gap-1 px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <dt className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+                  {etiqueta}
+                </dt>
+                <dd className="break-all font-medium text-ink">{valor}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       )}
     </>
   );
