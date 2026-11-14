@@ -1,26 +1,27 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
 :root {
   color-scheme: light;
 
   /* Fondos */
-  --bg-deep: #fafafa;
+  --bg-deep: #f7f7f5;
   --bg-panel: #ffffff;
-  --bg-content: #f2f2f2;
-  --bg-hover: #e8e8e8;
+  --bg-content: #efefed;
+  --bg-hover: #e5e5e3;
 
   /* Bordes */
-  --border: #e0e0e0;
+  --border: #ddddd8;
 
   /* Texto */
-  --text: #0a0a0a;
-  --text-muted: #3a3a3a;
-  --text-subtle: #787878;
+  --text: #080808;
+  --text-muted: #2e2e2e;
+  --text-subtle: #6e6e6e;
 
   /* Acento */
-  --accent: #0a0a0a;
-  --accent-hover: #1f1f1f;
-  --on-accent: #ffffff;
+  --accent: #080808;
+  --accent-hover: #1a1a1a;
+  --on-accent: #f7f7f5;
 }
 
 @theme inline {
@@ -48,6 +49,7 @@
   html {
     background-color: var(--bg-deep);
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
@@ -55,11 +57,15 @@
     background-color: var(--bg-deep);
     color: var(--text);
     font-family: var(--font-sans);
-    font-size: 1rem;
-    line-height: 1.6;
+    font-size: 0.9375rem;
+    line-height: 1.65;
     letter-spacing: 0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings:
+      "kern" 1,
+      "liga" 1,
+      "calt" 1;
   }
 
   h1,
@@ -69,15 +75,15 @@
   h5,
   h6 {
     font-family: var(--font-sans);
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
     color: var(--text);
   }
 
   :focus-visible {
-    outline: 1px solid var(--accent);
-    outline-offset: 2px;
+    outline: 1.5px solid var(--accent);
+    outline-offset: 3px;
   }
 
   ::selection {
@@ -98,16 +104,28 @@
   * {
     border-radius: 0 !important;
   }
+
+  /* Scrollbar custom */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    transition: background 0.2s;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-subtle);
+  }
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
+/* ── Keyframes ─────────────────────────────────────────── */
 
 @keyframes marquee {
   from {
@@ -121,7 +139,7 @@
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -132,7 +150,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(48px);
   }
   to {
     opacity: 1;
@@ -146,5 +164,35 @@
   }
   to {
     width: 3rem;
+  }
+}
+
+@keyframes revealX {
+  from {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  to {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
