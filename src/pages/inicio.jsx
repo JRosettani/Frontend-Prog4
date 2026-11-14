@@ -33,6 +33,12 @@ const secciones = [
     texto: "Administra los pedidos del sistema.",
     numero: "05",
   },
+  {
+    href: "/usuarios",
+    titulo: "Usuarios",
+    texto: "Consulta y edita las cuentas registradas.",
+    numero: "06",
+  },
 ];
 
 export default function Inicio() {
@@ -62,7 +68,7 @@ export default function Inicio() {
       </section>
 
       {/* Cards */}
-      <ul className="mt-10 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-3 lg:grid-cols-5">
+      <ul className="mt-10 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-3 lg:grid-cols-3">
         {secciones.map(({ href, titulo, texto, numero }) => (
           <li key={href} className="bg-panel">
             <Link

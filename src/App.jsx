@@ -13,6 +13,8 @@ import Productos from "./pages/productos";
 import Producto from "./pages/producto";
 import Pedido from "./pages/pedidos";
 import DetallePedido from "./pages/detallePedido";
+import Usuarios from "./pages/usuarios";
+import UsuarioAdmin from "./pages/usuario";
 
 // Usuario
 import NavbarUsuario from "./components/navbarUsuario";
@@ -22,6 +24,9 @@ import CatalogoDetalle from "./pages/catalogoDetalle";
 import Carrito from "./pages/carrito";
 import MisPedidos from "./pages/misPedidos";
 import MisPedidoDetalle from "./pages/misPedidoDetalle";
+
+// Compartida (usuario y admin)
+import Perfil from "./pages/perfil";
 
 // Públicas
 import Login from "./pages/login";
@@ -103,6 +108,15 @@ function App() {
                 <Route path="/pedidos/:id">
                   <DetallePedido />
                 </Route>
+                <Route path="/usuarios">
+                  <Usuarios />
+                </Route>
+                <Route path="/usuarios/:id">
+                  <UsuarioAdmin />
+                </Route>
+                <Route path="/perfil">
+                  <Perfil />
+                </Route>
                 <Route path="/login">
                   <Redirect to="/" replace />
                 </Route>
@@ -141,6 +155,9 @@ function App() {
                 </Route>
                 <Route path="/mis-pedidos/:id">
                   <MisPedidoDetalle />
+                </Route>
+                <Route path="/perfil">
+                  <Perfil />
                 </Route>
                 <Route path="/">
                   <Redirect to="/home" replace />

@@ -8,6 +8,7 @@ const enlaces = [
   { href: "/talles", texto: "Talles" },
   { href: "/productos", texto: "Productos" },
   { href: "/pedidos", texto: "Pedidos" },
+  { href: "/usuarios", texto: "Usuarios" },
 ];
 
 function estaActivo(href, ubicacion) {
@@ -80,12 +81,16 @@ export default function Navbar() {
         {isAuthenticated && (
           <div className="ml-auto flex shrink-0 items-center gap-3">
             {/* Chip del usuario */}
-            <span className="hidden items-center gap-2 border border-line px-3 py-1 sm:flex">
+            <Link
+              href="/perfil"
+              aria-label="Ver mi perfil"
+              className="hidden items-center gap-2 border border-line px-3 py-1 transition-colors hover:border-ink sm:flex"
+            >
               <span className="size-1.5 bg-green-500" aria-hidden="true" />
               <span className="text-xs tracking-wide text-ink-muted uppercase">
                 {usuario?.nombre}
               </span>
-            </span>
+            </Link>
 
             {/* Botón salir */}
             <button
