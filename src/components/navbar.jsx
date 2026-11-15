@@ -1,5 +1,7 @@
+
 import { Link, useLocation } from "wouter";
 import { useAuthStore } from "../stores/auth";
+import ThemeToggle from "./themeToggle";
 
 const enlaces = [
   { href: "/", texto: "Inicio" },
@@ -22,7 +24,7 @@ export default function Navbar() {
   const { isAuthenticated, usuario, logout } = useAuthStore();
 
   return (
-    <header className="sticky top-0 z-10 border-b border-line bg-panel/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-line bg-panel/80 backdrop-blur-sm">
       <nav
         aria-label="Principal"
         className="mx-auto flex h-14 w-full max-w-5xl items-center gap-3 px-4 sm:gap-6 sm:px-6"
@@ -49,6 +51,7 @@ export default function Navbar() {
           <ul className="flex items-center gap-0 overflow-x-auto scrollbar-none">
             {enlaces.map(({ href, texto }) => {
               const activo = estaActivo(href, ubicacion);
+
               return (
                 <li key={href}>
                   <Link
@@ -61,14 +64,14 @@ export default function Navbar() {
                     `}
                   >
                     {texto}
-                    {/* Línea inferior animada */}
+
                     <span
                       className={`
-                      absolute bottom-0 left-0 h-px w-full
-                      origin-left transition-transform duration-200
-                      bg-ink
-                      ${activo ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}
-                    `}
+                        absolute bottom-0 left-0 h-px w-full
+                        origin-left transition-transform duration-200
+                        bg-ink
+                        ${activo ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}
+                      `}
                     />
                   </Link>
                 </li>
@@ -77,7 +80,7 @@ export default function Navbar() {
           </ul>
         )}
 
-        {/* Usuario + logout */}
+        {/* Usuario + logout + tema */}
         {isAuthenticated && (
           <div className="ml-auto flex shrink-0 items-center gap-3">
             {/* Chip del usuario */}
@@ -87,6 +90,7 @@ export default function Navbar() {
               className="hidden items-center gap-2 border border-line px-3 py-1 transition-colors hover:border-ink sm:flex"
             >
               <span className="size-1.5 bg-green-500" aria-hidden="true" />
+
               <span className="text-xs tracking-wide text-ink-muted uppercase">
                 {usuario?.nombre}
               </span>
@@ -117,8 +121,12 @@ export default function Navbar() {
                   clipRule="evenodd"
                 />
               </svg>
+
               Salir
             </button>
+
+            {/* Botón cambiar tema - extremo derecho */}
+            <ThemeToggle />
           </div>
         )}
       </nav>

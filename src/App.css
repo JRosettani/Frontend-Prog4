@@ -1,5 +1,8 @@
+
 @import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+/* MODO CLARO */
 
 :root {
   color-scheme: light;
@@ -24,6 +27,33 @@
   --on-accent: #f7f7f5;
 }
 
+/*  MODO OSCURO */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Fondos */
+  --bg-deep: #111111;
+  --bg-panel: #1b1b1b;
+  --bg-content: #242424;
+  --bg-hover: #303030;
+
+  /* Bordes */
+  --border: #3a3a3a;
+
+  /* Texto */
+  --text: #f7f7f5;
+  --text-muted: #d0d0d0;
+  --text-subtle: #999999;
+
+  /* Acento */
+  --accent: #f7f7f5;
+  --accent-hover: #dddddd;
+  --on-accent: #080808;
+}
+
+/* Variables de tailwind */
+
 @theme inline {
   --color-deep: var(--bg-deep);
   --color-panel: var(--bg-panel);
@@ -45,7 +75,20 @@
   --font-mono: "JetBrains Mono", "Courier New", monospace;
 }
 
+/*Estilos generales*/
+
 @layer base {
+
+  /* transicion entre temas */
+  *,
+  *::before,
+  *::after {
+    transition:
+      background-color 300ms ease,
+      color 300ms ease,
+      border-color 300ms ease;
+  }
+
   html {
     background-color: var(--bg-deep);
     scroll-behavior: smooth;
@@ -105,7 +148,8 @@
     border-radius: 0 !important;
   }
 
-  /* Scrollbar custom */
+  /* SCROLLBAR PERSONALIZADA */
+
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -117,7 +161,8 @@
 
   ::-webkit-scrollbar-thumb {
     background: var(--border);
-    transition: background 0.2s;
+    transition:
+      background-color 300ms ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -125,12 +170,13 @@
   }
 }
 
-/* ── Keyframes ─────────────────────────────────────────── */
+/*Animaciones*/
 
 @keyframes marquee {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-50%);
   }
@@ -141,6 +187,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -152,6 +199,7 @@
     opacity: 0;
     transform: translateY(48px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -162,6 +210,7 @@
   from {
     width: 0;
   }
+
   to {
     width: 3rem;
   }
@@ -172,6 +221,7 @@
     transform: scaleX(0);
     transform-origin: left;
   }
+
   to {
     transform: scaleX(1);
     transform-origin: left;
@@ -182,6 +232,7 @@
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(100%);
   }
@@ -192,6 +243,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }

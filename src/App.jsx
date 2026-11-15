@@ -1,3 +1,4 @@
+
 import { Router, Route, Switch, Redirect } from "wouter";
 
 // Admin
@@ -32,6 +33,9 @@ import Perfil from "./pages/perfil";
 import Login from "./pages/login";
 import Registro from "./pages/registro";
 
+// Tema
+import ThemeToggle from "./components/themeToggle";
+
 import { useAuthStore } from "./stores/auth";
 
 function App() {
@@ -40,6 +44,9 @@ function App() {
 
   return (
     <>
+      {/* Botón global: solo aparece cuando no hay sesión iniciada */}
+      {!isAuthenticated && <ThemeToggle flotante />}
+
       <a
         href="#contenido"
         className="sr-only rounded-md bg-accent px-4 py-2 text-sm font-semibold text-on-accent focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-20"
@@ -58,9 +65,11 @@ function App() {
               <Route path="/login">
                 <Login />
               </Route>
+
               <Route path="/registro">
                 <Registro />
               </Route>
+
               <Route>
                 <Redirect to="/login" replace />
               </Route>
@@ -70,6 +79,7 @@ function App() {
           // ── Rutas Admin ─────────────────────────────────────────
           <>
             <Navbar />
+
             <main
               id="contenido"
               className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12"
@@ -78,54 +88,71 @@ function App() {
                 <Route path="/">
                   <Inicio />
                 </Route>
+
                 <Route path="/categorias">
                   <Categorias />
                 </Route>
+
                 <Route path="/categorias/:id">
                   <Categoria />
                 </Route>
+
                 <Route path="/marcas">
                   <Marcas />
                 </Route>
+
                 <Route path="/marcas/:id">
                   <Marca />
                 </Route>
+
                 <Route path="/talles">
                   <Talles />
                 </Route>
+
                 <Route path="/talles/:id">
                   <Talle />
                 </Route>
+
                 <Route path="/productos">
                   <Productos />
                 </Route>
+
                 <Route path="/productos/:id">
                   <Producto />
                 </Route>
+
                 <Route path="/pedidos">
                   <Pedido />
                 </Route>
+
                 <Route path="/pedidos/:id">
                   <DetallePedido />
                 </Route>
+
                 <Route path="/usuarios">
                   <Usuarios />
                 </Route>
+
                 <Route path="/usuarios/:id">
                   <UsuarioAdmin />
                 </Route>
+
                 <Route path="/perfil">
                   <Perfil />
                 </Route>
+
                 <Route path="/login">
                   <Redirect to="/" replace />
                 </Route>
+
                 <Route path="/registro">
                   <Redirect to="/" replace />
                 </Route>
+
                 <Route path="/home">
                   <Redirect to="/" replace />
                 </Route>
+
                 <Route>
                   <Redirect to="/" replace />
                 </Route>
@@ -136,38 +163,49 @@ function App() {
           // ── Rutas Usuario ────────────────────────────────────────
           <>
             <NavbarUsuario />
+
             <main id="contenido">
               <Switch>
                 <Route path="/home">
                   <HomeUsuario />
                 </Route>
+
                 <Route path="/catalogo">
                   <Catalogo />
                 </Route>
+
                 <Route path="/catalogo/:id">
                   <CatalogoDetalle />
                 </Route>
+
                 <Route path="/carrito">
                   <Carrito />
                 </Route>
+
                 <Route path="/mis-pedidos">
                   <MisPedidos />
                 </Route>
+
                 <Route path="/mis-pedidos/:id">
                   <MisPedidoDetalle />
                 </Route>
+
                 <Route path="/perfil">
                   <Perfil />
                 </Route>
+
                 <Route path="/">
                   <Redirect to="/home" replace />
                 </Route>
+
                 <Route path="/login">
                   <Redirect to="/home" replace />
                 </Route>
+
                 <Route path="/registro">
                   <Redirect to="/home" replace />
                 </Route>
+
                 <Route>
                   <Redirect to="/home" replace />
                 </Route>
