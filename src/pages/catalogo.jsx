@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { Link, useSearch } from "wouter";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { buscar } from "../services/producto";
+import { buscar, obtenerTodos } from "../services/producto";
 import { obtenerTodos as obtenerMarcas } from "../services/marca";
 import { obtenerTodos as obtenerCategorias } from "../services/categoria";
 import PaginaUsuario, { EncabezadoUsuario } from "../components/paginaUsuario";
 import Aviso from "../components/aviso";
-import { IconoReintentar } from "../components/iconos";
+import { IconoChevron, IconoReintentar } from "../components/iconos";
 import { botonSecundario, campo } from "../components/estilos";
 
 const TAMANIO = 12;
@@ -15,11 +15,36 @@ const lista = (data) => (Array.isArray(data?.datos) ? data.datos : []);
 const stockTotal = (p) =>
   (p.talles ?? []).reduce((suma, t) => suma + (t.stock ?? 0), 0);
 
+const numero = (v) => (v === "" || v == null ? null : Number(v));
+
 export default function Catalogo() {
+  // /catalogo?marca=3 llega desde el click en una marca de la home
+  const search = useSearch();
+  const marcaDeUrl = new URLSearchParams(search).get("marca") ?? "";
+
   const [busqueda, setBusqueda] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
-  const [marcaId, setMarcaId] = useState("");
+  const [marcaId, setMarcaId] = useState(marcaDeUrl);
+  const [precioMin, setPrecioMin] = useState("");
+  const [precioMax, setPrecioMax] = useState("");
   const [pagina, setPagina] = useState(1);
+
+  // Si cambia la marca de la URL (ej. otro click en una marca), se aplica
+  useEffect(() => {
+    setMarcaId(marcaDeUrl);
+    setPagina(1);
+  }, [marcaDeUrl]);
+
+  // Espera 400 ms desde la ultima tecla antes de filtrar por precio
+  const [rango, setRango] = useState({ min: null, max: null });
+  useEffect(() => {
+    const t = setTimeout(
+      () => setRango({ min: numero(precioMin), max: numero(precioMax) }),
+      400,
+    );
+    return () => clearTimeout(t);
+  }, [precioMin, precioMax]);
+  const hayPrecio = rango.min != null || rango.max != null;
 
   // Espera 400 ms desde la ultima tecla antes de pedir al servidor
   const [nombreBuscado, setNombreBuscado] = useState("");
@@ -28,8 +53,8 @@ export default function Catalogo() {
     return () => clearTimeout(t);
   }, [busqueda]);
 
-  // Los filtros y la pagina viajan al backend; cambiar cualquiera vuelve a pedir
-  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
+  // Sin filtro de precio: los filtros y la pagina viajan al backend.
+  const consultaServidor = useQuery({
     queryKey: [
       "productos",
       "catalogo",
@@ -47,7 +72,17 @@ export default function Catalogo() {
         tamanio: TAMANIO,
       }),
     placeholderData: keepPreviousData, // evita el parpadeo al cambiar de pagina
+    enabled: !hayPrecio,
   });
+
+  // Con filtro de precio: se traen los productos y se filtra/pagina aca,
+  // asi funciona sin depender de que el backend soporte el rango de precio.
+  const consultaTodos = useQuery({
+    queryKey: ["productos"],
+    queryFn: obtenerTodos,
+    enabled: hayPrecio,
+  });
+
   const { data: dataCategorias } = useQuery({
     queryKey: ["categorias"],
     queryFn: obtenerCategorias,
@@ -60,10 +95,32 @@ export default function Catalogo() {
   const categorias = lista(dataCategorias);
   const marcas = lista(dataMarcas);
 
-  const paginado = data?.datos;
-  const productos = Array.isArray(paginado?.items) ? paginado.items : [];
-  const totalPaginas = paginado?.totalPaginas ?? 0;
-  const hayFiltros = busqueda || categoriaId || marcaId;
+  let productos = [];
+  let totalPaginas = 0;
+  let estado;
+  if (hayPrecio) {
+    estado = consultaTodos;
+    const nombre = nombreBuscado.toLowerCase();
+    const filtrados = lista(consultaTodos.data).filter(
+      (p) =>
+        (!nombre || p.nombre?.toLowerCase().includes(nombre)) &&
+        (!categoriaId || String(p.categoriaId) === String(categoriaId)) &&
+        (!marcaId || String(p.marcaId) === String(marcaId)) &&
+        (rango.min == null || p.precio >= rango.min) &&
+        (rango.max == null || p.precio <= rango.max),
+    );
+    totalPaginas = Math.ceil(filtrados.length / TAMANIO);
+    productos = filtrados.slice((pagina - 1) * TAMANIO, pagina * TAMANIO);
+  } else {
+    estado = consultaServidor;
+    const paginado = consultaServidor.data?.datos;
+    productos = Array.isArray(paginado?.items) ? paginado.items : [];
+    totalPaginas = paginado?.totalPaginas ?? 0;
+  }
+  const { isLoading, isError, isPlaceholderData, refetch } = estado;
+  const hayFiltros =
+    busqueda || categoriaId || marcaId || precioMin !== "" || precioMax !== "";
+  const marcaActiva = marcas.find((m) => String(m.id) === String(marcaId));
 
   // Si la pagina actual dejo de existir (ej. se borraron productos), volver a la ultima
   useEffect(() => {
@@ -78,11 +135,13 @@ export default function Catalogo() {
   return (
     <PaginaUsuario>
       <EncabezadoUsuario etiqueta="Colección" titulo="Productos">
-        Elegí una prenda, seleccioná tu talle y sumala al carrito.
+        {marcaActiva
+          ? `Mostrando productos de ${marcaActiva.nombre}.`
+          : "Elegí una prenda, seleccioná tu talle y sumala al carrito."}
       </EncabezadoUsuario>
 
       {/* Filtros */}
-      <div className="mb-8 grid gap-3 sm:grid-cols-[1fr_12rem_12rem_auto]">
+      <div className="mb-8 grid gap-3 sm:grid-cols-[1fr_12rem_12rem]">
         <input
           type="search"
           value={busqueda}
@@ -126,21 +185,58 @@ export default function Catalogo() {
             </option>
           ))}
         </select>
-        {hayFiltros && (
-          <button
-            type="button"
-            onClick={() => {
-              setBusqueda("");
-              setCategoriaId("");
-              setMarcaId("");
-              setNombreBuscado("");
+        <div className="flex items-center gap-2 sm:col-span-3 sm:grid sm:grid-cols-[auto_12rem_12rem_1fr] sm:gap-3">
+          <span className="hidden text-xs font-medium uppercase tracking-widest text-ink-subtle sm:block">
+            Precio
+          </span>
+          <input
+            type="number"
+            min="0"
+            inputMode="numeric"
+            value={precioMin}
+            onChange={(e) => {
+              setPrecioMin(e.target.value);
               setPagina(1);
             }}
-            className={botonSecundario}
-          >
-            Limpiar
-          </button>
-        )}
+            placeholder="Mínimo $"
+            aria-label="Precio mínimo"
+            className={campo}
+          />
+          <input
+            type="number"
+            min="0"
+            inputMode="numeric"
+            value={precioMax}
+            onChange={(e) => {
+              setPrecioMax(e.target.value);
+              setPagina(1);
+            }}
+            placeholder="Máximo $"
+            aria-label="Precio máximo"
+            className={campo}
+          />
+          {hayFiltros && (
+            <button
+              type="button"
+              onClick={() => {
+                setBusqueda("");
+                setCategoriaId("");
+                setMarcaId("");
+                setPrecioMin("");
+                setPrecioMax("");
+                setNombreBuscado("");
+                setRango({ min: null, max: null });
+                setPagina(1);
+                // quita ?marca= de la URL para que no se vuelva a aplicar
+                if (marcaDeUrl)
+                  window.history.replaceState(null, "", "/catalogo");
+              }}
+              className={`${botonSecundario} sm:justify-self-start`}
+            >
+              Limpiar
+            </button>
+          )}
+        </div>
       </div>
 
       {isError && (
@@ -197,7 +293,7 @@ export default function Catalogo() {
               <Link
                 key={p.id}
                 href={`/catalogo/${p.id}`}
-                className="group relative overflow-hidden bg-panel"
+                className="group relative overflow-hidden bg-panel transition-colors duration-200 hover:bg-content/30"
               >
                 <div className="aspect-square overflow-hidden bg-content">
                   <img
@@ -206,7 +302,7 @@ export default function Catalogo() {
                     onError={(e) => {
                       e.target.src = "https://placehold.co/400x400?text=?";
                     }}
-                    className={`size-full object-cover transition-transform duration-700 group-hover:scale-[1.05] ${agotado ? "opacity-50 grayscale" : ""}`}
+                    className={`size-full object-cover transition-transform duration-300 group-hover:scale-110 ${agotado ? "opacity-50 grayscale" : ""}`}
                   />
                 </div>
                 {agotado && (
@@ -215,16 +311,19 @@ export default function Catalogo() {
                   </span>
                 )}
                 <div className="space-y-1 p-4">
-                  <p className="truncate text-sm font-semibold tracking-tight text-ink">
+                  <p className="truncate text-sm font-semibold tracking-tight text-ink transition-colors group-hover:text-ink-muted">
                     {p.nombre}
                   </p>
                   <p className="truncate text-xs text-ink-subtle">
                     {p.marcaNombre}
                     {p.categoriaNombre ? ` · ${p.categoriaNombre}` : ""}
                   </p>
-                  <p className="text-sm font-bold text-ink">
-                    ${p.precio?.toLocaleString("es-AR")}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold text-ink">
+                      ${p.precio?.toLocaleString("es-AR")}
+                    </p>
+                    <IconoChevron className="size-4 shrink-0 text-ink-subtle transition-all duration-200 group-hover:translate-x-1 group-hover:text-ink" />
+                  </div>
                 </div>
                 <div className="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-500 group-hover:w-full" />
               </Link>
