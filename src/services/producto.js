@@ -5,6 +5,14 @@ export const obtenerTodos = async () => {
   return res.data;
 };
 
+// Busqueda paginada y filtrada en el servidor.
+// params: { nombre, categoriaId, marcaId, pagina, tamanio }
+// Axios omite los params que valen undefined.
+export const buscar = async (params) => {
+  const res = await base.get("/producto/buscar", { params });
+  return res.data;
+};
+
 export const obtenerUnoPorId = async (id) => {
   const res = await base.get(`/producto/${id}`);
   return res.data;

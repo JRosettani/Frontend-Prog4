@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { useQuery } from "@tanstack/react-query";
-import { obtenerTodos } from "../services/producto";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { buscar } from "../services/producto";
 import { obtenerTodos as obtenerMarcas } from "../services/marca";
 import { obtenerTodos as obtenerCategorias } from "../services/categoria";
 import PaginaUsuario, { EncabezadoUsuario } from "../components/paginaUsuario";
 import Aviso from "../components/aviso";
 import { IconoReintentar } from "../components/iconos";
 import { botonSecundario, campo } from "../components/estilos";
+
+const TAMANIO = 12;
 
 const lista = (data) => (Array.isArray(data?.datos) ? data.datos : []);
 const stockTotal = (p) =>
@@ -17,10 +19,34 @@ export default function Catalogo() {
   const [busqueda, setBusqueda] = useState("");
   const [categoriaId, setCategoriaId] = useState("");
   const [marcaId, setMarcaId] = useState("");
+  const [pagina, setPagina] = useState(1);
 
-  const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["productos"],
-    queryFn: obtenerTodos,
+  // Espera 400 ms desde la ultima tecla antes de pedir al servidor
+  const [nombreBuscado, setNombreBuscado] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setNombreBuscado(busqueda.trim()), 400);
+    return () => clearTimeout(t);
+  }, [busqueda]);
+
+  // Los filtros y la pagina viajan al backend; cambiar cualquiera vuelve a pedir
+  const { data, isLoading, isError, isPlaceholderData, refetch } = useQuery({
+    queryKey: [
+      "productos",
+      "catalogo",
+      nombreBuscado,
+      categoriaId,
+      marcaId,
+      pagina,
+    ],
+    queryFn: () =>
+      buscar({
+        nombre: nombreBuscado || undefined,
+        categoriaId: categoriaId || undefined,
+        marcaId: marcaId || undefined,
+        pagina,
+        tamanio: TAMANIO,
+      }),
+    placeholderData: keepPreviousData, // evita el parpadeo al cambiar de pagina
   });
   const { data: dataCategorias } = useQuery({
     queryKey: ["categorias"],
@@ -33,15 +59,21 @@ export default function Catalogo() {
 
   const categorias = lista(dataCategorias);
   const marcas = lista(dataMarcas);
-  const texto = busqueda.trim().toLowerCase();
 
-  const productos = lista(data).filter(
-    (p) =>
-      (!texto || p.nombre?.toLowerCase().includes(texto)) &&
-      (!categoriaId || String(p.categoriaId) === categoriaId) &&
-      (!marcaId || String(p.marcaId) === marcaId),
-  );
+  const paginado = data?.datos;
+  const productos = Array.isArray(paginado?.items) ? paginado.items : [];
+  const totalPaginas = paginado?.totalPaginas ?? 0;
   const hayFiltros = busqueda || categoriaId || marcaId;
+
+  // Si la pagina actual dejo de existir (ej. se borraron productos), volver a la ultima
+  useEffect(() => {
+    if (totalPaginas > 0 && pagina > totalPaginas) setPagina(totalPaginas);
+  }, [totalPaginas, pagina]);
+
+  const irAPagina = (n) => {
+    setPagina(n);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <PaginaUsuario>
@@ -54,14 +86,20 @@ export default function Catalogo() {
         <input
           type="search"
           value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
+          onChange={(e) => {
+            setBusqueda(e.target.value);
+            setPagina(1);
+          }}
           placeholder="Buscar por nombre…"
           aria-label="Buscar por nombre"
           className={campo}
         />
         <select
           value={categoriaId}
-          onChange={(e) => setCategoriaId(e.target.value)}
+          onChange={(e) => {
+            setCategoriaId(e.target.value);
+            setPagina(1);
+          }}
           aria-label="Categoría"
           className={campo}
         >
@@ -74,7 +112,10 @@ export default function Catalogo() {
         </select>
         <select
           value={marcaId}
-          onChange={(e) => setMarcaId(e.target.value)}
+          onChange={(e) => {
+            setMarcaId(e.target.value);
+            setPagina(1);
+          }}
           aria-label="Marca"
           className={campo}
         >
@@ -92,6 +133,8 @@ export default function Catalogo() {
               setBusqueda("");
               setCategoriaId("");
               setMarcaId("");
+              setNombreBuscado("");
+              setPagina(1);
             }}
             className={botonSecundario}
           >
@@ -145,7 +188,9 @@ export default function Catalogo() {
       )}
 
       {!isLoading && !isError && productos.length > 0 && (
-        <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-3 lg:grid-cols-4">
+        <div
+          className={`grid grid-cols-2 gap-px bg-line sm:grid-cols-3 lg:grid-cols-4 transition-opacity ${isPlaceholderData ? "opacity-60" : ""}`}
+        >
           {productos.map((p) => {
             const agotado = stockTotal(p) === 0;
             return (
@@ -186,6 +231,33 @@ export default function Catalogo() {
             );
           })}
         </div>
+      )}
+
+      {!isError && totalPaginas > 1 && (
+        <nav
+          aria-label="Paginación"
+          className="mt-8 flex items-center justify-center gap-4"
+        >
+          <button
+            type="button"
+            onClick={() => irAPagina(pagina - 1)}
+            disabled={pagina <= 1}
+            className={`${botonSecundario} disabled:opacity-40`}
+          >
+            Anterior
+          </button>
+          <span className="text-sm text-ink-muted">
+            Página {pagina} de {totalPaginas}
+          </span>
+          <button
+            type="button"
+            onClick={() => irAPagina(pagina + 1)}
+            disabled={pagina >= totalPaginas}
+            className={`${botonSecundario} disabled:opacity-40`}
+          >
+            Siguiente
+          </button>
+        </nav>
       )}
     </PaginaUsuario>
   );
