@@ -4,6 +4,7 @@ import { obtenerTodos } from "../services/producto";
 import { obtenerTodos as obtenerMarcas } from "../services/marca";
 import { useAuthStore } from "../stores/auth";
 import Footer from "../components/footer";
+import { IconoChevron } from "../components/iconos";
 
 const HERO_IMG =
   "https://images.unsplash.com/photo-1597859682726-d5010f58e240?q=80&w=1169&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -255,9 +256,8 @@ export default function HomeUsuario() {
                 <Link
                   key={p.id}
                   href={`/catalogo/${p.id}`}
-                  className="group relative overflow-hidden bg-panel"
+                  className="group relative overflow-hidden bg-panel transition-colors duration-200 hover:bg-content/30"
                 >
-                  <div className="absolute inset-0 z-10 bg-black/0 transition-colors duration-500 group-hover:bg-black/5" />
                   <div className="aspect-square overflow-hidden bg-content">
                     <img
                       src={p.imagenUrl}
@@ -265,7 +265,7 @@ export default function HomeUsuario() {
                       onError={(e) => {
                         e.target.src = "https://placehold.co/400x400?text=?";
                       }}
-                      className="size-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.07]"
+                      className="size-full object-cover transition-transform duration-300 group-hover:scale-110"
                     />
                   </div>
                   {p.categoriaNombre && (
@@ -279,15 +279,18 @@ export default function HomeUsuario() {
                     </span>
                   </div>
                   <div className="space-y-1 p-4">
-                    <p className="truncate text-sm font-semibold tracking-tight text-ink">
+                    <p className="truncate text-sm font-semibold tracking-tight text-ink transition-colors group-hover:text-ink-muted">
                       {p.nombre}
                     </p>
                     <p className="truncate text-xs text-ink-subtle">
                       {p.descripcion}
                     </p>
-                    <p className="text-sm font-bold text-ink">
-                      ${p.precio?.toLocaleString("es-AR")}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-bold text-ink">
+                        ${p.precio?.toLocaleString("es-AR")}
+                      </p>
+                      <IconoChevron className="size-4 shrink-0 text-ink-subtle transition-all duration-200 group-hover:translate-x-1 group-hover:text-ink" />
+                    </div>
                   </div>
                   <div className="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-500 group-hover:w-full" />
                 </Link>
@@ -304,13 +307,15 @@ export default function HomeUsuario() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-8">
               {marcas.map((m) => (
-                <span
+                <Link
                   key={m.id}
-                  className="group relative cursor-default select-none text-xl font-bold uppercase tracking-[0.2em] text-ink-subtle/30 transition-all duration-300 hover:text-ink"
+                  href={`/catalogo?marca=${m.id}`}
+                  aria-label={`Ver productos de ${m.nombre}`}
+                  className="group relative text-xl font-bold uppercase tracking-[0.2em] text-ink-subtle/30 transition-all duration-300 hover:text-ink focus-visible:text-ink"
                 >
                   {m.nombre}
                   <span className="absolute -bottom-1 left-0 h-px w-0 bg-ink transition-all duration-300 group-hover:w-full" />
-                </span>
+                </Link>
               ))}
             </div>
           </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useLocation } from "wouter";
 import z from "zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -14,9 +14,9 @@ import { obtenerTodos as obtenerMarcas } from "../services/marca";
 import { obtenerTodos as obtenerTalles } from "../services/talle";
 import Aviso from "../components/aviso";
 import Dialogo from "../components/dialogo";
+import FilaTalle from "../components/filaTalle";
 import { IconoAlerta, IconoChevron, IconoPapelera } from "../components/iconos";
 import {
-  botonIcono,
   botonPrimario,
   botonSecundario,
   campo,
@@ -120,6 +120,17 @@ export default function Producto() {
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: "talles" });
+  const tallesForm = useWatch({ control, name: "talles" }) ?? [];
+  const usados = new Set(
+    tallesForm.map((t) => String(t?.talleId ?? "")).filter(Boolean),
+  );
+  // Nombres de los talles ya guardados, por si la lista de talles tarda en llegar
+  const respaldo = Object.fromEntries(
+    (producto?.talles ?? []).map((t) => [
+      String(t.talleId ?? t.id),
+      t.talleNombre,
+    ]),
+  );
 
   // Cuando llega el producto, pre-carga el formulario
   useEffect(() => {
@@ -425,42 +436,26 @@ export default function Producto() {
               </span>
             </p>
             <div className="space-y-2.5">
+              <div
+                aria-hidden="true"
+                className="grid grid-cols-[minmax(0,1fr)_6rem_2.25rem] gap-2 text-xs font-semibold uppercase tracking-wider text-ink-subtle"
+              >
+                <span>Talle</span>
+                <span>Stock</span>
+                <span />
+              </div>
               {fields.map((field, index) => (
-                <div
+                <FilaTalle
                   key={field.id}
-                  className="flex gap-2 items-center transition-all duration-200"
-                >
-                  <select
-                    aria-label={`Talle ${index + 1}`}
-                    className={`${campo} flex-1 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
-                    {...register(`talles.${index}.talleId`)}
-                  >
-                    <option value="">Talle</option>
-                    {talles.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.nombre}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="Stock"
-                    aria-label={`Stock talle ${index + 1}`}
-                    className={`${campo} w-24 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-ink-muted/50`}
-                    {...register(`talles.${index}.stock`)}
-                  />
-                  {fields.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => remove(index)}
-                      aria-label="Quitar talle"
-                      className={`${botonIcono} text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-all duration-200 hover:scale-105 active:scale-95`}
-                    >
-                      <IconoPapelera className="size-4" />
-                    </button>
-                  )}
-                </div>
+                  index={index}
+                  control={control}
+                  register={register}
+                  talles={talles}
+                  usados={usados}
+                  respaldo={respaldo}
+                  puedeQuitar={fields.length > 1}
+                  onQuitar={() => remove(index)}
+                />
               ))}
             </div>
             {errors.talles && !Array.isArray(errors.talles) && (
