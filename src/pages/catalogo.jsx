@@ -18,7 +18,6 @@ const stockTotal = (p) =>
 const numero = (v) => (v === "" || v == null ? null : Number(v));
 
 export default function Catalogo() {
-  // /catalogo?marca=3 llega desde el click en una marca de la home
   const search = useSearch();
   const marcaDeUrl = new URLSearchParams(search).get("marca") ?? "";
 
@@ -29,13 +28,11 @@ export default function Catalogo() {
   const [precioMax, setPrecioMax] = useState("");
   const [pagina, setPagina] = useState(1);
 
-  // Si cambia la marca de la URL (ej. otro click en una marca), se aplica
   useEffect(() => {
     setMarcaId(marcaDeUrl);
     setPagina(1);
   }, [marcaDeUrl]);
 
-  // Espera 400 ms desde la ultima tecla antes de filtrar por precio
   const [rango, setRango] = useState({ min: null, max: null });
   useEffect(() => {
     const t = setTimeout(
@@ -46,14 +43,12 @@ export default function Catalogo() {
   }, [precioMin, precioMax]);
   const hayPrecio = rango.min != null || rango.max != null;
 
-  // Espera 400 ms desde la ultima tecla antes de pedir al servidor
   const [nombreBuscado, setNombreBuscado] = useState("");
   useEffect(() => {
     const t = setTimeout(() => setNombreBuscado(busqueda.trim()), 400);
     return () => clearTimeout(t);
   }, [busqueda]);
 
-  // Sin filtro de precio: los filtros y la pagina viajan al backend.
   const consultaServidor = useQuery({
     queryKey: [
       "productos",
@@ -71,12 +66,10 @@ export default function Catalogo() {
         pagina,
         tamanio: TAMANIO,
       }),
-    placeholderData: keepPreviousData, // evita el parpadeo al cambiar de pagina
+    placeholderData: keepPreviousData,
     enabled: !hayPrecio,
   });
 
-  // Con filtro de precio: se traen los productos y se filtra/pagina aca,
-  // asi funciona sin depender de que el backend soporte el rango de precio.
   const consultaTodos = useQuery({
     queryKey: ["productos"],
     queryFn: obtenerTodos,
@@ -98,6 +91,7 @@ export default function Catalogo() {
   let productos = [];
   let totalPaginas = 0;
   let estado;
+
   if (hayPrecio) {
     estado = consultaTodos;
     const nombre = nombreBuscado.toLowerCase();
@@ -117,12 +111,12 @@ export default function Catalogo() {
     productos = Array.isArray(paginado?.items) ? paginado.items : [];
     totalPaginas = paginado?.totalPaginas ?? 0;
   }
+
   const { isLoading, isError, isPlaceholderData, refetch } = estado;
   const hayFiltros =
     busqueda || categoriaId || marcaId || precioMin !== "" || precioMax !== "";
   const marcaActiva = marcas.find((m) => String(m.id) === String(marcaId));
 
-  // Si la pagina actual dejo de existir (ej. se borraron productos), volver a la ultima
   useEffect(() => {
     if (totalPaginas > 0 && pagina > totalPaginas) setPagina(totalPaginas);
   }, [totalPaginas, pagina]);
@@ -227,7 +221,6 @@ export default function Catalogo() {
                 setNombreBuscado("");
                 setRango({ min: null, max: null });
                 setPagina(1);
-                // quita ?marca= de la URL para que no se vuelva a aplicar
                 if (marcaDeUrl)
                   window.history.replaceState(null, "", "/catalogo");
               }}
@@ -302,14 +295,24 @@ export default function Catalogo() {
                     onError={(e) => {
                       e.target.src = "https://placehold.co/400x400?text=?";
                     }}
-                    className={`size-full object-cover transition-transform duration-300 group-hover:scale-110 ${agotado ? "opacity-50 grayscale" : ""}`}
+                    className={`size-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:scale-[1.07] ${agotado ? "opacity-50 grayscale" : ""}`}
                   />
                 </div>
+
                 {agotado && (
                   <span className="absolute left-3 top-3 bg-ink px-2 py-0.5 text-[0.55rem] font-semibold uppercase tracking-widest text-on-accent">
                     Agotado
                   </span>
                 )}
+
+                {!agotado && (
+                  <div className="absolute inset-x-0 bottom-0 z-20 translate-y-full bg-ink px-4 py-3 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">
+                    <span className="text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-on-accent">
+                      Ver producto →
+                    </span>
+                  </div>
+                )}
+
                 <div className="space-y-1 p-4">
                   <p className="truncate text-sm font-semibold tracking-tight text-ink transition-colors group-hover:text-ink-muted">
                     {p.nombre}
@@ -325,6 +328,7 @@ export default function Catalogo() {
                     <IconoChevron className="size-4 shrink-0 text-ink-subtle transition-all duration-200 group-hover:translate-x-1 group-hover:text-ink" />
                   </div>
                 </div>
+
                 <div className="absolute bottom-0 left-0 h-px w-0 bg-ink transition-all duration-500 group-hover:w-full" />
               </Link>
             );
