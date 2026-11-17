@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuthStore } from "../stores/auth";
@@ -32,9 +31,9 @@ export default function NavbarUsuario() {
     <header className="sticky top-0 z-50 border-b border-line bg-panel/90 backdrop-blur-md">
       <nav
         aria-label="Principal"
-        className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6"
+        className="mx-auto grid h-14 w-full max-w-5xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6"
       >
-        {/* Logo */}
+        {/* Logo — izquierda */}
         <Link
           href="/home"
           className="group flex shrink-0 items-center gap-2.5 font-semibold text-ink transition-opacity hover:opacity-70"
@@ -43,15 +42,13 @@ export default function NavbarUsuario() {
             ℝ
             <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
           </span>
-
           <span className="hidden tracking-tight sm:inline">Catálogo</span>
         </Link>
 
-        {/* Links - solo desktop */}
+        {/* Links — centro, solo desktop */}
         <ul className="hidden items-center sm:flex">
           {enlaces.map(({ href, texto }) => {
             const activo = estaActivo(href, ubicacion);
-
             return (
               <li key={href}>
                 <Link
@@ -62,7 +59,6 @@ export default function NavbarUsuario() {
                   }`}
                 >
                   {texto}
-
                   <span
                     className={`absolute bottom-0 left-0 h-px w-full origin-left bg-ink transition-transform duration-200 ${
                       activo
@@ -77,7 +73,7 @@ export default function NavbarUsuario() {
         </ul>
 
         {/* Derecha */}
-        <div className="ml-auto flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2 justify-self-end">
           {/* Carrito */}
           <Link
             href="/carrito"
@@ -98,7 +94,6 @@ export default function NavbarUsuario() {
               <path d="M6 7h12l-1 13H7L6 7Z" />
               <path d="M9 7a3 3 0 0 1 6 0" />
             </svg>
-
             {cantidadCarrito > 0 && (
               <span className="absolute -right-1.5 -top-1.5 grid min-w-4 place-items-center bg-ink px-1 text-[0.6rem] font-bold leading-4 text-on-accent">
                 {cantidadCarrito}
@@ -106,7 +101,7 @@ export default function NavbarUsuario() {
             )}
           </Link>
 
-          {/* Avatar -> perfil */}
+          {/* Avatar → perfil */}
           <Link
             href="/perfil"
             aria-label="Ver perfil"
@@ -116,13 +111,12 @@ export default function NavbarUsuario() {
               {inicial}
               <span className="absolute inset-0 bg-white/0 transition-colors duration-200 group-hover:bg-white/10" />
             </span>
-
             <span className="hidden max-w-24 truncate text-[0.65rem] tracking-[0.15em] uppercase sm:block">
               {usuario?.nombre}
             </span>
           </Link>
 
-          {/* Salir - solo desktop */}
+          {/* Salir — solo desktop */}
           <button
             type="button"
             onClick={logout}
@@ -142,11 +136,10 @@ export default function NavbarUsuario() {
                 clipRule="evenodd"
               />
             </svg>
-
             Salir
           </button>
 
-          {/* Hamburguesa - solo mobile */}
+          {/* Hamburguesa — solo mobile */}
           <button
             type="button"
             onClick={() => setMenuAbierto(!menuAbierto)}
@@ -156,26 +149,17 @@ export default function NavbarUsuario() {
           >
             <span className="relative flex size-4 flex-col items-center justify-center gap-[4px]">
               <span
-                className={`block h-px w-4 bg-current transition-all duration-300 ${
-                  menuAbierto ? "translate-y-[5px] rotate-45" : ""
-                }`}
+                className={`block h-px w-4 bg-current transition-all duration-300 ${menuAbierto ? "translate-y-[5px] rotate-45" : ""}`}
               />
-
               <span
-                className={`block h-px bg-current transition-all duration-300 ${
-                  menuAbierto ? "w-0 opacity-0" : "w-3"
-                }`}
+                className={`block h-px bg-current transition-all duration-300 ${menuAbierto ? "w-0 opacity-0" : "w-3"}`}
               />
-
               <span
-                className={`block h-px w-4 bg-current transition-all duration-300 ${
-                  menuAbierto ? "-translate-y-[5px] -rotate-45" : ""
-                }`}
+                className={`block h-px w-4 bg-current transition-all duration-300 ${menuAbierto ? "-translate-y-[5px] -rotate-45" : ""}`}
               />
             </span>
           </button>
 
-          {/* Botón cambiar tema - extremo derecho */}
           <ThemeToggle />
         </div>
       </nav>
@@ -189,7 +173,6 @@ export default function NavbarUsuario() {
         <ul className="space-y-0.5 px-4 pt-3">
           {enlaces.map(({ href, texto }) => {
             const activo = estaActivo(href, ubicacion);
-
             return (
               <li key={href}>
                 <Link
@@ -200,18 +183,14 @@ export default function NavbarUsuario() {
                   }`}
                 >
                   {texto}
-
                   <span
-                    className={`h-px origin-left bg-ink transition-all duration-200 ${
-                      activo ? "w-4" : "w-0 group-hover:w-4"
-                    }`}
+                    className={`h-px origin-left bg-ink transition-all duration-200 ${activo ? "w-4" : "w-0 group-hover:w-4"}`}
                   />
                 </Link>
               </li>
             );
           })}
         </ul>
-
         <div className="mx-4 mt-2 border-t border-line pb-4 pt-3">
           <button
             type="button"
@@ -234,10 +213,8 @@ export default function NavbarUsuario() {
                   clipRule="evenodd"
                 />
               </svg>
-
               Cerrar sesión
             </span>
-
             <span className="h-px w-0 bg-ink transition-all duration-200 group-hover:w-4" />
           </button>
         </div>
